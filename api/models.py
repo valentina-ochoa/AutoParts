@@ -5,6 +5,10 @@ from django.utils.text import slugify
 class Usuario(AbstractUser):
     rut = models.CharField(max_length=12, unique=True, null=True, blank=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
+    fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Nacimiento")
+    direccion = models.CharField(max_length=255, null=True, blank=True, verbose_name="Dirección")
+    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+    fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")
 
     def __str__(self):
         return self.username

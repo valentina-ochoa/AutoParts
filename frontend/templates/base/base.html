@@ -16,6 +16,9 @@
  		<!-- Bootstrap -->
  		<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
 
+		{% block custom_style %}
+		{% endblock %}
+
  		<!-- Slick -->
  		<link type="text/css" rel="stylesheet" href="{% static 'css/slick.css' %}"/>
  		<link type="text/css" rel="stylesheet" href="{% static 'css/slick-theme.css' %}"/>
@@ -267,89 +270,11 @@
 		</header>
 		<!-- /HEADER -->
 
-		<!-- NAVIGATION -->
-		<nav id="navigation">
-			<!-- container -->
-			<div class="container">
-				<!-- responsive-nav -->
-				<div id="responsive-nav">
-					<!-- NAV -->
-					<ul class="main-nav nav navbar-nav">
-						<li class="active"><a href="#">Inicio</a></li>
-						<li><a href="#">Ofertas Especiales</a></li>
-						<li><a href="#">Categorías</a></li>
-						<li><a href="#">Portátiles</a></li>
-						<li><a href="#">Teléfonos Inteligentes</a></li>
-						<li><a href="#">Cámaras</a></li>
-						<li><a href="#">Accesorios</a></li>
-					</ul>
-					<!-- /NAV -->
-				</div>
-				<!-- /responsive-nav -->
-			</div>
-			<!-- /container -->
-		</nav>
-		<!-- /NAVIGATION -->
-
-		<!-- BREADCRUMB -->
-		<div id="breadcrumb" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<h3 class="breadcrumb-header">Página Regular</h3>
-						<ul class="breadcrumb-tree">
-							<li><a href="#">Inicio</a></li>
-							<li class="active">Vacío</li>
-						</ul>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /BREADCRUMB -->
-
 		{% block content %}
 
 		{% endblock %}
 
-		<!-- NEWSLETTER -->
-		<div id="newsletter" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<div class="newsletter">
-							<p>Regístrate a nuestra <strong>NEWSLETTER</strong></p>
-							<form>
-								<input class="input" type="email" placeholder="Ingresa tu correo electrónico">
-								<button class="newsletter-btn"><i class="fa fa-envelope"></i> Suscribirse</button>
-							</form>
-							<ul class="newsletter-follow">
-								<li>
-									<a href="#"><i class="fa fa-facebook"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-twitter"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-instagram"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-pinterest"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /NEWSLETTER -->
+		
 
 		<!-- FOOTER -->
 		<footer id="footer">
@@ -480,5 +405,9 @@
 			}
 		});
 		</script>
+
+		{% block custom_script %}
+		
+		{% endblock %}
 	</body>
 </html>

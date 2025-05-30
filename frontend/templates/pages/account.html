@@ -1,6 +1,124 @@
 {% extends 'base/base.html' %}
 {% load static %}
 
+{% block custom_style %}
+<style>
+    .nav-pills > li.active > a,
+    .nav-pills > li.active > a:focus,
+    .nav-pills > li.active > a:hover {
+      background-color: #D10024 !important;
+      color: #fff !important;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
 
+<div class="container " style="margin-top:40px; margin-bottom: 40px;">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3">
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+          <li class="active">
+            <a href="#info" data-toggle="tab">
+              <i class="fa fa-user fa-fw"></i> Información personal
+            </a>
+          </li>
+          <li>
+            <a href="#seguridad" data-toggle="tab">
+              <i class="fa fa-lock fa-fw"></i> Seguridad
+            </a>
+          </li>
+          <li>
+            <a href="#pedidos" data-toggle="tab">
+              <i class="fa fa-shopping-bag fa-fw"></i> Pedidos
+            </a>
+          </li>
+          <li>
+            <a href="#pagos" data-toggle="tab">
+              <i class="fa fa-credit-card fa-fw"></i> Métodos de pago
+            </a>
+          </li>
+          <li>
+            <a href="#direcciones" data-toggle="tab">
+              <i class="fa fa-map-marker fa-fw"></i> Direcciones
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- Main content area -->
+      <div class="col-md-9">
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="info">
+            <!-- Contenido de Información personal -->
+            <h4>Información personal</h4>
+            <p>Aquí puedes ver y editar tu información personal.</p>
+            <form>
+                <div class="form-group">
+                    <label for="nombre">Nombre completo</label>
+                    <input type="text" class="form-control" id="nombre" value="{{ user.first_name }} {{ user.last_name }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="rut">RUT</label>
+                    <input type="text" class="form-control" id="rut" value="{{ user.rut }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" class="form-control" id="telefono" value="{{ user.telefono }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                    <input type="text" class="form-control" id="fecha_nacimiento" value="{{ user.fecha_nacimiento|date:'d/m/Y' }}" readonly>
+                </div>
+                <button type="button" class="btn btn-primary" id="editBtn">Editar</button>
+            </form>
+          </div>
+          <div class="tab-pane fade" id="seguridad">
+            <!-- Contenido de Seguridad -->
+            <h4>Seguridad</h4>
+            <p>Gestiona tu contraseña y opciones de seguridad.</p>
+          </div>
+          <div class="tab-pane fade" id="pedidos">
+            <!-- Contenido de Pedidos -->
+            <h4>Pedidos</h4>
+            <p>Consulta tu historial de compras.</p>
+          </div>
+          <div class="tab-pane fade" id="pagos">
+            <!-- Contenido de Métodos de pago -->
+            <h4>Métodos de pago</h4>
+            <p>Administra tus tarjetas y métodos de pago.</p>
+          </div>
+          <div class="tab-pane fade" id="direcciones">
+            <!-- Contenido de Direcciones -->
+            <h4>Direcciones</h4>
+            <p>Gestiona tus direcciones de envío y facturación.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block custom_script %}
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var editBtn = document.getElementById('editBtn');
+    var form = document.getElementById('infoForm');
+    editBtn.addEventListener('click', function() {
+      var inputs = form.querySelectorAll('input');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].removeAttribute('readonly');
+      }
+      editBtn.textContent = 'Guardar';
+      editBtn.type = 'submit';
+    });
+});
+
+</script>
 {% endblock %}

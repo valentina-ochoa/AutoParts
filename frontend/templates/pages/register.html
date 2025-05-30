@@ -1,0 +1,24 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+    <h2 class="mb-4 text-center">Registro de Usuario</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group mb-3">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="text-danger medium">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+    </form>
+</div>
+{% endblock %}

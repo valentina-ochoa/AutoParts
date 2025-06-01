@@ -3,11 +3,11 @@
 {% load static %}
 {% block content %}
 <!-- NAVIGATION -->
-<nav id="navigation">
+<nav id="navegador">
 	<!-- container -->
 	<div class="container">
 		<!-- responsive-nav -->
-		<div id="responsive-nav">
+		<div id="busqueda">
 			<!-- NAV -->
 			<ul class="main-nav nav navbar-nav">
 				<li class="active"><a href="#">Inicio</a></li>
@@ -27,17 +27,13 @@
 <!-- /NAVIGATION -->
 
 <!-- BREADCRUMB -->
-<div id="breadcrumb" class="section">
+<div id="breadcrumb" class="seccion">
 	<!-- container -->
 	<div class="container">
 		<!-- row -->
 		<div class="row">
 			<div class="col-md-12">
-				<h3 class="breadcrumb-header">Página Regular</h3>
-				<ul class="breadcrumb-tree">
-					<li><a href="#">Inicio</a></li>
-					<li class="active">Vacío</li>
-				</ul>
+				<h3 class="breadcrumb-header">Página de Inicio</h3>
 			</div>
 		</div>
 		<!-- /row -->
@@ -46,7 +42,7 @@
 </div>
 <!-- /BREADCRUMB -->1
 		<!-- SECTION -->
-		<div class="section">
+		<div class="seccion">
 			<!-- container -->
 			<div class="container">
 				<!-- row -->
@@ -55,11 +51,11 @@
 					<div class="col-md-4 col-xs-6">
 						<div class="shop">
 							<div class="shop-img">
-								<img src="{% static 'img/shop01.png' %}" alt="">
+								<img src="{% static 'img/radiador.png' %}" alt="" height="300">
 							</div>
 							<div class="shop-body">
-								<h3>Laptop<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<h3>Radiador</h3>
+								<a href="#" class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -69,11 +65,11 @@
 					<div class="col-md-4 col-xs-6">
 						<div class="shop">
 							<div class="shop-img">
-								<img src="{% static 'img/shop03.png' %}" alt="">
+								<img src="{% static 'img/antena.png' %}" alt="" height="300">
 							</div>
 							<div class="shop-body">
-								<h3>Accessories<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<h3>Antena</h3>
+								<a href="#" class="cta-btn">Comprar Ahora <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -83,11 +79,11 @@
 					<div class="col-md-4 col-xs-6">
 						<div class="shop">
 							<div class="shop-img">
-								<img src="{% static 'img/shop02.png' %}" alt="">
+								<img src="{% static 'img/tapa.webp' %}" alt="" height="300">
 							</div>
 							<div class="shop-body">
-								<h3>Cameras<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<h3>Tapa Combustible</h3>
+								<a href="#" class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -100,7 +96,7 @@
 		<!-- /SECTION -->
 
 		<!-- SECTION -->
-		<div class="section">
+		<div class="seccion">
 			<!-- container -->
 			<div class="container">
 				<!-- row -->
@@ -108,16 +104,8 @@
 
 					<!-- section title -->
 					<div class="col-md-12">
-						<div class="section-title">
-							<h3 class="title">New Products</h3>
-							<div class="section-nav">
-								<ul class="section-tab-nav tab-nav">
-									<li class="active"><a data-toggle="tab" href="#tab1">Laptops</a></li>
-									<li><a data-toggle="tab" href="#tab1">Smartphones</a></li>
-									<li><a data-toggle="tab" href="#tab1">Cameras</a></li>
-									<li><a data-toggle="tab" href="#tab1">Accessories</a></li>
-								</ul>
-							</div>
+						<div class="titulo-seccion">
+							<h3 class="titulo">Productos Nuevos</h3>
 						</div>
 					</div>
 					<!-- /section title -->
@@ -132,7 +120,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product01.png' %}" alt="">
+												<img src="{% static 'img/radio.webp' %}" alt="">
 												<div class="product-label">
 													<span class="sale">-30%</span>
 													<span class="new">NEW</span>
@@ -164,7 +152,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product02.png' %}" alt="">
+												<img src="{% static 'img/alfombras.avif' %}" alt="">
 												<div class="product-label">
 													<span class="new">NEW</span>
 												</div>
@@ -195,7 +183,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product03.png' %}" alt="">
+												<img src="{% static 'img/pastillafreno.webp' %}" alt="">
 												<div class="product-label">
 													<span class="sale">-30%</span>
 												</div>
@@ -221,7 +209,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product04.png' %}" alt="">
+												<img src="{% static 'img/amortiguador.jpg' %}" alt="" height="263">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -249,7 +237,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product05.png' %}" alt="">
+												<img src="{% static 'img/bateria.webp' %}" alt="">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -288,54 +276,8 @@
 		</div>
 		<!-- /SECTION -->
 
-		<!-- HOT DEAL SECTION -->
-		<div id="hot-deal" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<div class="hot-deal">
-							<ul class="hot-deal-countdown">
-								<li>
-									<div>
-										<h3>02</h3>
-										<span>Days</span>
-									</div>
-								</li>
-								<li>
-									<div>
-										<h3>10</h3>
-										<span>Hours</span>
-									</div>
-								</li>
-								<li>
-									<div>
-										<h3>34</h3>
-										<span>Mins</span>
-									</div>
-								</li>
-								<li>
-									<div>
-										<h3>60</h3>
-										<span>Secs</span>
-									</div>
-								</li>
-							</ul>
-							<h2 class="text-uppercase">hot deal this week</h2>
-							<p>New Collection Up to 50% OFF</p>
-							<a class="primary-btn cta-btn" href="#">Shop now</a>
-						</div>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /HOT DEAL SECTION -->
-
 		<!-- SECTION -->
-		<div class="section">
+		<div class="seccion">
 			<!-- container -->
 			<div class="container">
 				<!-- row -->
@@ -343,16 +285,8 @@
 
 					<!-- section title -->
 					<div class="col-md-12">
-						<div class="section-title">
-							<h3 class="title">Top selling</h3>
-							<div class="section-nav">
-								<ul class="section-tab-nav tab-nav">
-									<li class="active"><a data-toggle="tab" href="#tab2">Laptops</a></li>
-									<li><a data-toggle="tab" href="#tab2">Smartphones</a></li>
-									<li><a data-toggle="tab" href="#tab2">Cameras</a></li>
-									<li><a data-toggle="tab" href="#tab2">Accessories</a></li>
-								</ul>
-							</div>
+						<div class="titulo-seccion">
+							<h3 class="title">Top Ventas</h3>
 						</div>
 					</div>
 					<!-- /section title -->
@@ -367,7 +301,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product06.png' %}" alt="">
+												<img src="{% static 'img/radio.webp' %}" alt="">
 												<div class="product-label">
 													<span class="sale">-30%</span>
 													<span class="new">NEW</span>
@@ -399,7 +333,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product07.png' %}" alt="">
+												<img src="{% static 'img/cubrevolante.webp' %}" alt="">
 												<div class="product-label">
 													<span class="new">NEW</span>
 												</div>
@@ -430,7 +364,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product08.png' %}" alt="">
+												<img src="{% static 'img/plumillas.webp' %}" alt="">
 												<div class="product-label">
 													<span class="sale">-30%</span>
 												</div>
@@ -456,7 +390,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product09.png' %}" alt="">
+												<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -484,7 +418,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/product01.png' %}" alt="">
+												<img src="{% static 'img/tapa.webp' %}" alt="" height="263">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -524,14 +458,14 @@
 		<!-- /SECTION -->
 
 		<!-- SECTION -->
-		<div class="section">
+		<div class="seccion">
 			<!-- container -->
 			<div class="container">
 				<!-- row -->
 				<div class="row">
 					<div class="col-md-4 col-xs-6">
-						<div class="section-title">
-							<h4 class="title">Top selling</h4>
+						<div class="titulo-seccion">
+							<h4 class="title">Top Ventas</h4>
 							<div class="section-nav">
 								<div id="slick-nav-3" class="products-slick-nav"></div>
 							</div>
@@ -542,7 +476,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product07.png' %}" alt="">
+										<img src="{% static 'img/radio.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -555,7 +489,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product08.png' %}" alt="">
+										<img src="{% static 'img/tapa.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -568,7 +502,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product09.png' %}" alt="">
+										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -583,7 +517,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product01.png' %}" alt="">
+										<img src="{% static 'img/plumillas.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -596,7 +530,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product02.png' %}" alt="">
+										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -609,7 +543,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product03.png' %}" alt="">
+										<img src="{% static 'img/tapa.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -623,8 +557,8 @@
 					</div>
 
 					<div class="col-md-4 col-xs-6">
-						<div class="section-title">
-							<h4 class="title">Top selling</h4>
+						<div class="titulo-seccion">
+							<h4 class="title">Top Ventas</h4>
 							<div class="section-nav">
 								<div id="slick-nav-4" class="products-slick-nav"></div>
 							</div>
@@ -635,7 +569,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product04.png' %}" alt="">
+										<img src="{% static 'img/plumillas.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -648,7 +582,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product05.png' %}" alt="">
+										<img src="{% static 'img/tapa.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -661,7 +595,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product06.png' %}" alt="">
+										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -676,7 +610,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product07.png' %}" alt="">
+										<img src="{% static 'img/radio.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -689,7 +623,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product08.png' %}" alt="">
+										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -702,7 +636,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product09.png' %}" alt="">
+										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -718,8 +652,8 @@
 					<div class="clearfix visible-sm visible-xs"></div>
 
 					<div class="col-md-4 col-xs-6">
-						<div class="section-title">
-							<h4 class="title">Top selling</h4>
+						<div class="titulo-seccion">
+							<h4 class="title">Top Ventas</h4>
 							<div class="section-nav">
 								<div id="slick-nav-5" class="products-slick-nav"></div>
 							</div>
@@ -730,7 +664,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product01.png' %}" alt="">
+										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -743,7 +677,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product02.png' %}" alt="">
+										<img src="{% static 'img/radio.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -756,7 +690,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product03.png' %}" alt="">
+										<img src="{% static 'img/tapa.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -771,7 +705,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product04.png' %}" alt="">
+										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -784,7 +718,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product05.png' %}" alt="">
+										<img src="{% static 'img/plumillas.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -797,7 +731,7 @@
 								<!-- product widget -->
 								<div class="product-widget">
 									<div class="product-img">
-										<img src="{% static 'img/product06.png' %}" alt="">
+										<img src="{% static 'img/tapa.webp' %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -816,39 +750,5 @@
 			<!-- /container -->
 		</div>
 		<!-- /SECTION -->
-		 <!-- NEWSLETTER -->
-		<div id="newsletter" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<div class="newsletter">
-							<p>Regístrate a nuestra <strong>NEWSLETTER</strong></p>
-							<form>
-								<input class="input" type="email" placeholder="Ingresa tu correo electrónico">
-								<button class="newsletter-btn"><i class="fa fa-envelope"></i> Suscribirse</button>
-							</form>
-							<ul class="newsletter-follow">
-								<li>
-									<a href="#"><i class="fa fa-facebook"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-twitter"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-instagram"></i></a>
-								</li>
-								<li>
-									<a href="#"><i class="fa fa-pinterest"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /NEWSLETTER -->
+		 
 {% endblock %}

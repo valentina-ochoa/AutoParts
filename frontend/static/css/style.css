@@ -291,28 +291,28 @@ textarea.input {
 	Section
 \*----------------------------*/
 
-.section {
+.seccion{
   padding-top: 30px;
   padding-bottom: 30px;
 }
 
-.section-title {
+.titulo-seccion {
   position: relative;
   margin-bottom: 30px;
   margin-top: 15px;
 }
 
-.section-title .title {
+.titulo-seccion .titulo{
   display: inline-block;
   text-transform: uppercase;
   margin: 0px;
 }
 
-.section-title .section-nav {
+.titulo-seccion .section-nav {
   float: right;
 }
 
-.section-title .section-nav .section-tab-nav {
+.titulo-seccion .section-nav .section-tab-nav {
   display: inline-block;
 }
 
@@ -348,7 +348,7 @@ textarea.input {
   width: 100%;
 }
 
-.section-title .section-nav .products-slick-nav {
+.titulo-seccion .section-nav .products-slick-nav {
   top: 0px;
   right: 0px;
 }
@@ -410,7 +410,7 @@ textarea.input {
 	Top header
 \*----------------------------*/
 
-#top-header {
+#encabezado {
   padding-top: 10px;
   padding-bottom: 10px;
   background-color: #1E1F29;
@@ -447,14 +447,6 @@ textarea.input {
   padding-top: 15px;
   padding-bottom: 15px;
   background-color: #15161D;
-}
-
-.header-logo {
-  float: left;
-}
-
-.header-logo .logo img {
-  display: block;
 }
 
 /*----------------------------*\
@@ -616,10 +608,10 @@ textarea.input {
 }
 
 /*=========================================================
-	03 -> Navigation
+	03 -> Navegador
 ===========================================================*/
 
-#navigation {
+#navegador{
   background: #FFF;
   border-bottom: 2px solid #E4E7ED;
   border-top: 3px solid #D10024;
@@ -668,7 +660,7 @@ textarea.input {
   .header-ctn .menu-toggle {
     display: inline-block;
   }
-  #responsive-nav {
+  #busqueda{
     position: fixed;
     left: 0;
     top: 0;
@@ -685,7 +677,7 @@ textarea.input {
     -webkit-transition: 0.2s all;
     transition: 0.2s all;
   }
-  #responsive-nav.active {
+  #busqueda.active {
     -webkit-transform: translateX(0%);
     -ms-transform: translateX(0%);
     transform: translateX(0%);
@@ -781,68 +773,7 @@ textarea.input {
   text-transform: uppercase;
 }
 
-/*=========================================================
-	05 -> HOT DEAL
-===========================================================*/
 
-#hot-deal.section {
-  padding: 60px 0px;
-  margin: 30px 0px;
-  background-color: #E4E7ED;
-  background-image: url('../img/hotdeal.png');
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.hot-deal {
-  text-align: center;
-}
-
-.hot-deal .hot-deal-countdown {
-  margin-bottom: 30px;
-}
-
-.hot-deal .hot-deal-countdown>li {
-  position: relative;
-  display: inline-block;
-  width: 100px;
-  height: 100px;
-  background: #D10024e6;
-  text-align: center;
-  border-radius: 50%;
-  margin: 0px 5px;
-}
-
-.hot-deal .hot-deal-countdown>li>div {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.hot-deal .hot-deal-countdown>li>div h3 {
-  color: #FFF;
-  margin-bottom: 0px;
-}
-
-.hot-deal .hot-deal-countdown>li>div span {
-  display: block;
-  font-size: 10px;
-  text-transform: uppercase;
-  color: #FFF;
-}
-
-.hot-deal p {
-  text-transform: uppercase;
-  font-size: 24px;
-}
-
-.hot-deal .cta-btn {
-  margin-top: 15px;
-}
 
 /*=========================================================
 	06 -> PRODUCT
@@ -2004,7 +1935,7 @@ textarea.input {
 #footer {
   background: #15161D;
   color: #B9BABC;
-}
+  }
 
 #bottom-footer {
   background: #1E1F29;
@@ -2021,22 +1952,22 @@ textarea.input {
   margin: 0px 0px 30px;
 }
 
-.footer-links li+li {
+.contactos li+li {
   margin-top: 15px;
 }
 
-.footer-links li a {
+.contactos li a {
   color: #B9BABC;
 }
 
-.footer-links li i {
+.contactos li i {
   margin-right: 15px;
   color: #D10024;
   width: 14px;
   text-align: center;
 }
 
-.footer-links li a:hover {
+.contactos li a:hover {
   color: #D10024;
 }
 

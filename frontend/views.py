@@ -27,3 +27,8 @@ def register(request):
     else:
         form = RegistroUsuarioForm()
     return render(request, 'pages/register.html', {'form': form})
+
+def carrito_view(request):
+    return render(request, 'pages/carrito.html')
+
+

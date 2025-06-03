@@ -117,6 +117,12 @@ USE_L10N = True
 USE_TZ = True
 
 
+TRANSBANK_API_URL = "https://webpay3gint.transbank.cl"
+TRANSBANK_COMMERCE_CODE = "597055555532"  
+TRANSBANK_API_KEY = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C"  
+TRANSBANK_ENVIRONMENT = 'TEST'  
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 

@@ -30,10 +30,19 @@ def log_out(request):
 
 
 def iniciar_pago(request):
-    monto_clp = 1000  # puedes cambiar esto al valor que necesites
-    buy_order = "ORDEN123"  # número de orden único (usa UUID si quieres)
-    session_id = "SESSION123"  # también puede ser cualquier string único
+    # Obtener productos desde el carrito (usando sesión)
+    carrito = request.session.get("carrito_externo", [])
 
+    if not carrito:
+        messages.error(request, "Tu carrito está vacío.")
+        return redirect('/carrito/')
+
+    # Calcular el monto total en CLP
+    monto_clp = sum(item['precio'] for item in carrito)
+
+    # Datos para Transbank
+    buy_order = "ORDEN123"  # puedes usar uuid.uuid4() si deseas que sea único
+    session_id = "SESSION123"
     return_url = request.build_absolute_uri(reverse('pago_exito'))
 
     transaction = Transaction(WebpayOptions(
@@ -46,13 +55,14 @@ def iniciar_pago(request):
         response = transaction.create(
             buy_order=buy_order,
             session_id=session_id,
-            amount=monto_clp,
+            amount=int(monto_clp),  # asegúrate de que sea int
             return_url=return_url
         )
         return redirect(f"{response['url']}?token_ws={response['token']}")
     except Exception as e:
         messages.error(request, f'Error al iniciar el pago: {str(e)}')
-        return redirect('/')
+        return redirect('/carrito/')
+
 
 
 
@@ -93,4 +103,9 @@ def get_or_create_cart(request):
         cart.total_usd_calculado = round(cart.total_calculado / 850, 2)  
         return cart
     return None
+
+
+from api_externa.repuestos import obtener_repuestos
+
+
 

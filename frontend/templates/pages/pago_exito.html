@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <div class="alert alert-success p-5 shadow-lg rounded">
+        <h1 class="display-4 text-success">¡Gracias por tu compra en <strong>AutoParts</strong>! 🛠️</h1>
+        <p class="lead mt-4">Tu pedido ha sido procesado exitosamente.</p>
+        <hr class="my-4">
+        <p>Muy pronto recibirás una confirmación con los detalles de tu compra.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-3">
+            Volver al inicio
+        </a>
+    </div>
+
+    
+</div>
+{% endblock %}

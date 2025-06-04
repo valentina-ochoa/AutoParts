@@ -11,8 +11,7 @@
                     <th>Producto</th>
                     <th>Precio</th>
                     <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Acción</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -20,30 +19,26 @@
                     <tr>
                         <td>{{ item.producto.nombre }}</td>
                         <td>${{ item.producto.precio }}</td>
-                        <td>{{ item.cantidad }}</td>
-                        <td>${{ item.producto.precio|floatformat:0|add:""|add:item.cantidad }}</td>
-                        <td>
-                            <a href="{% url 'remove_from_cart' item.producto.codigo_producto %}" class="btn btn-sm btn-danger">Quitar</a>
-                        </td>
+                        
+                        
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         <p><strong>Total CLP:</strong> ${{ total }}</p>
-        <p><strong>Total USD:</strong> ${{ total_usd }}</p>
+        
 
-        <a href="{% url 'clear_cart' %}" class="btn btn-outline-danger">Vaciar carrito</a>
+        
+        <div class="mt-4">
+            <a href="{% url 'iniciar_pago' %}" class="btn btn-primary">Pagar</a>
+            <a href="{% url 'limpiar_carrito' %}" class="btn btn-warning"> Limpiar Carrito</a>
 
+        </div>
     {% else %}
         <div class="alert alert-warning mt-4">
             <p>Tu carrito está vacío.</p>
         </div>
     {% endif %}
-
- 
-    <div class="mt-4">
-        <a href="{% url 'iniciar_pago' %}" class="btn btn-primary">Pagar</a>
-    </div>
-
+</div>
 {% endblock %}

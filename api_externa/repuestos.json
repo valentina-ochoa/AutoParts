@@ -1,0 +1,114 @@
+[
+  {
+    "codigo_producto": "AP-0001",
+    "marca": "Bosch",
+    "codigo": "BOS-001",
+    "nombre": "Filtro de Aceite Bosch",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 8900 }]
+  },
+  {
+    "codigo_producto": "AP-0002",
+    "marca": "Mahle",
+    "codigo": "MAH-002",
+    "nombre": "Filtro de Aire Mahle",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 7500 }]
+  },
+  {
+    "codigo_producto": "AP-0003",
+    "marca": "NGK",
+    "codigo": "NGK-003",
+    "nombre": "Bujía NGK Iridium",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 4500 }]
+  },
+  {
+    "codigo_producto": "AP-0004",
+    "marca": "Continental",
+    "codigo": "CON-004",
+    "nombre": "Correa de Distribución Continental",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 22000 }]
+  },
+  {
+    "codigo_producto": "AP-0005",
+    "marca": "Brembo",
+    "codigo": "BRE-005",
+    "nombre": "Pastillas de Freno Brembo",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 16900 }]
+  },
+  {
+    "codigo_producto": "AP-0006",
+    "marca": "TRW",
+    "codigo": "TRW-006",
+    "nombre": "Discos de Freno TRW",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 30000 }]
+  },
+  {
+    "codigo_producto": "AP-0007",
+    "marca": "Monroe",
+    "codigo": "MON-007",
+    "nombre": "Amortiguador Delantero Monroe",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 42000 }]
+  },
+  {
+    "codigo_producto": "AP-0008",
+    "marca": "SKF",
+    "codigo": "SKF-008",
+    "nombre": "Rótula Inferior SKF",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 9500 }]
+  },
+  {
+    "codigo_producto": "AP-0009",
+    "marca": "Valeo",
+    "codigo": "VAL-009",
+    "nombre": "Alternador Valeo",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 115000 }]
+  },
+  {
+    "codigo_producto": "AP-0010",
+    "marca": "Mutlu",
+    "codigo": "MUT-010",
+    "nombre": "Batería 60Ah Mutlu",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 68000 }]
+  },
+  {
+    "codigo_producto": "AP-0011",
+    "marca": "Philips",
+    "codigo": "PHI-011",
+    "nombre": "Faros LED Philips",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 28900 }]
+  },
+  {
+    "codigo_producto": "AP-0012",
+    "marca": "Delphi",
+    "codigo": "DEL-012",
+    "nombre": "Sensor de Oxígeno Delphi",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 19000 }]
+  },
+  {
+    "codigo_producto": "AP-0013",
+    "marca": "SteelPro",
+    "codigo": "STP-013",
+    "nombre": "Alarma Antirrobo SteelPro",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 32900 }]
+  },
+  {
+    "codigo_producto": "AP-0014",
+    "marca": "Toyota",
+    "codigo": "TOY-014",
+    "nombre": "Cinturón de Seguridad Toyota",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 27000 }]
+  },
+  {
+    "codigo_producto": "AP-0015",
+    "marca": "Universal",
+    "codigo": "UNI-015",
+    "nombre": "Cubre Asientos Universales",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 9900 }]
+  },
+  {
+    "codigo_producto": "AP-0016",
+    "marca": "CrossSafety",
+    "codigo": "CRS-016",
+    "nombre": "Kit de Emergencia Vehicular",
+    "precio": [{ "fecha": "2024-06-10T03:00:00.000Z", "valor": 15900 }]
+  }
+]

@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<h2> Catálogo de Repuestos mayorista</h2>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Código del Producto</th>
+            <th>Marca</th>
+            <th>Nombre</th>
+            <th>Precio (CLP)</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rep in repuestos %}
+        <tr>
+            <td>{{ rep.codigo_producto }}</td>
+            <td>{{ rep.marca }}</td>
+            <td>{{ rep.nombre }}</td>
+            <td>${{ rep.precio.0.valor }}</td>
+            <td>{{ rep.precio.0.fecha|slice:":10" }}</td>
+            <td>
+                <form class="add-to-cart-form" method="post" data-url="{% url 'carrito' %}">
+    {% csrf_token %}
+    <input type="hidden" name="codigo_producto" value="{{ rep.codigo_producto }}">
+    <input type="hidden" name="nombre" value="{{ rep.nombre }}">
+    <input type="hidden" name="precio" value="{{ rep.precio.0.valor }}">
+    <button type="submit" class="btn btn-success"> Agregar</button>
+               </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault(); 
+
+        const url = form.getAttribute('data-url');
+        const formData = new FormData(form);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error al agregar');
+            return response.json();
+        })
+        .then(data => {
+            alert('Producto agregado al carrito');
+        })
+        .catch(error => {
+            alert(' Producto agregado al carrito');
+            console.error(error);
+        });
+    });
+});
+</script>
+
+{% endblock %}
+
+

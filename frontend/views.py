@@ -82,6 +82,18 @@ def limpiar_carrito(request):
 def pago_exito(request):
     return render(request, 'pages/pago_exito.html')
 
+from django.shortcuts import redirect
+
+
+
+def limpiar_carrito_y_volver_inicio(request):
+    if "carrito" in request.session:
+        del request.session["carrito"]
+        request.session.modified = True
+    elif "carrito_externo" in request.session:
+        del request.session["carrito_externo"]
+        request.session.modified = True
+    return redirect('home')  # Asegúrate que este sea el nombre de la ruta al inicio
 
 
 

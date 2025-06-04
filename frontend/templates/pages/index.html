@@ -112,18 +112,19 @@
 								<!-- tab -->
 								<div id="tab1" class="tab-pane active">
 									<div class="products-slick" data-nav="#slick-nav-1">
+										{% for producto in productos %}
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="{% static 'img/radio.webp' %}" alt="">
+												<img src="" alt="img">
 												<div class="product-label">
 													<span class="new">Nuevo</span>
 												</div>
 											</div>
 											<div class="product-body">
-												<p class="product-category">Electrónica Automotriz</p>
-												<h3 class="product-name"><a href="#">Radio Bluethooth</a></h3>
-												<h4 class="product-price">$90.000</h4>
+												<p class="product-category">{{ producto.etiquetas }}</p>
+												<h3 class="product-name"><a href="#">{{ producto.nombre }}</a></h3>
+												<h4 class="product-price">${{ producto.precio }}</h4>
 												<div class="product-rating">
 													<i class="fa fa-star"></i>
 													<i class="fa fa-star"></i>
@@ -133,109 +134,13 @@
 												</div>
 											</div>
 											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
+												<button class="add-to-cart-btn" data-id="{{ producto.id }}">
+													<i class="fa fa-shopping-cart"></i>Agregar al carro
+												</button>
 											</div>
 										</div>
 										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/alfombras.avif' %}" alt="">
-												<div class="product-label">
-													<span class="new">Nuevo</span>
-												</div>
-											</div>
-											<div class="product-body">
-												<p class="product-category">Accesorios</p>
-												<h3 class="product-name"><a href="#">Alfombras</a></h3>
-												<h4 class="product-price">$10.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star-o"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/pastillafreno.webp' %}" alt="">
-												<div class="product-label">
-													<span class="new">Nuevo</span>
-												</div>
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Pastilla de frenos</a></h3>
-												<h4 class="product-price">$120.000</h4>
-												<div class="product-rating">
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/amortiguador.jpg' %}" alt="" height="263">
-												<div class="product-label">
-													<span class="new">Nuevo</span>
-												</div>
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Amortiguador</a></h3>
-												<h4 class="product-price">$50.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/bateria.webp' %}" alt="">
-												<div class="product-label">
-													<span class="new">NEW</span>
-												</div>
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Batería</a></h3>
-												<h4 class="product-price">$64.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
+										{% endfor %}
 									</div>
 									<div id="slick-nav-1" class="products-slick-nav"></div>
 								</div>
@@ -262,7 +167,7 @@
 					<div class="col-md-12">
 						<div class="titulo-seccion">
 							<h3 class="title">Top Ventas</h3>
-							<a href="{% url 'catalogo_externo' %}" class="btn btn-sm btn-primary ms-3">Catálogo Mayorista</a>
+							<a href="#" class="btn btn-sm btn-primary ms-3">Catálogo Mayorista</a>
 						</div>
 					</div>
 					<!-- /section title -->
@@ -694,4 +599,8 @@
 		</div>
 		<!-- /SECTION -->
 		 
+{% endblock %}
+
+{% block custom_script %}
+
 {% endblock %}

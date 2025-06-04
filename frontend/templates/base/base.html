@@ -67,6 +67,88 @@
 				background-color: #34354a !important;
 				color: #fff !important;
 			}
+			.text-white {
+				color: #fff !important;
+			}
+			.header-logo img {
+				max-height: 100px; 
+			}
+			.slide-cart {
+				position: fixed;
+				top: 0;
+				right: -400px;
+				width: 350px;
+				height: 100%;
+				background: #fff;
+				box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+				z-index: 1050;
+				transition: right 0.3s cubic-bezier(.4,0,.2,1);
+				display: flex;
+				flex-direction: column;
+			}
+			.slide-cart.open {
+				right: 0;
+			}
+			.slide-cart-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 1rem;
+				border-bottom: 1px solid #eee;
+				font-weight: bold;
+				font-size: 1.2rem;
+			}
+			.slide-cart-body {
+				flex: 1;
+				overflow-y: auto;
+				padding: 1rem;
+			}
+			.slide-cart-footer {
+				padding: 1rem;
+				border-top: 1px solid #eee;
+				background: #fafafa;
+			}
+			.slide-cart .product-widget {
+				display: flex;
+				align-items: center;
+				margin-bottom: 1rem;
+			}
+			.slide-cart .product-img img {
+				width: 60px;
+				height: 60px;
+				object-fit: cover;
+				border-radius: 6px;
+			}
+			.slide-cart .product-body {
+				flex: 1;
+				margin-left: 10px;
+			}
+			.slide-cart .delete {
+				background: none;
+				border: none;
+				color: #d9534f;
+				font-size: 1.2rem;
+				cursor: pointer;
+			}
+			.slide-cart .cart-btns .btn {
+				margin-bottom: 0.5rem;
+			}
+			.cart-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+				background: rgba(0,0,0,0.35);
+				z-index: 1049;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+			}
+			.cart-overlay.open {
+				opacity: 1;
+				pointer-events: auto;
+			}
 		</style>
 
     </head>
@@ -76,10 +158,10 @@
 			<!-- TOP HEADER -->
 			<div id="encabezado">
 				<div class="container">
-					<ul class="header-links pull-left">
-						<li><a href="#"><i class="fa fa-phone"></i> +569 3866 4589</a></li>
-						<li><a href="#"><i class="fa fa-envelope-o"></i> Autoparts@gmail.com</li>
-						<li><a href="#"><i class="fa fa-map-marker"></i> San Bernardo</a></li>
+					<ul class="header-links pull-left text-white">
+						<li><i class="fa fa-phone"></i> +569 3866 4589</li>
+						<li><i class="fa fa-envelope-o"></i> Autoparts@gmail.com</li>
+						<li><i class="fa fa-map-marker"></i> San Bernardo</li>
 					</ul>
 					<ul class="header-links pull-right">
 						{% if user.is_authenticated %}
@@ -168,6 +250,14 @@
 				<div class="container">
 					<!-- row -->
 					<div class="row">
+						<!-- LOGO -->
+						<div class="col-md-3">
+							<div class="header-logo">
+								<a href="{% url 'home' %}" class="logo">
+									<img src="{% static 'img/logo.png' %}" alt="AutoParts Logo">
+								</a>
+							</div>
+						</div>
 						<!-- SEARCH BAR -->
 						<div class="col-md-6">
 							<div class="header-search">
@@ -200,39 +290,53 @@
 
 								<!-- Cart -->
 								<div class="dropdown cursor-pointer">
-									<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+									<a id="openCart" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
 										<i class="fa fa-shopping-cart"></i>
 										<span>Tu Carrito</span>
-										<div class="qty">3</div>
+										<div class="qty" id="cartQty">{{ carrito_items|length }}</div>
 									</a>
-									<div class="cart-dropdown">
-										<div class="cart-list">
+								</div>
+								<!-- Slide-in Cart Panel + Overlay -->
+								<div id="slideCart" class="slide-cart">
+									<div class="slide-cart-header">
+										<span>Tu Carrito</span>
+										<button id="closeCart" class="close" style="font-size:2rem;">&times;</button>
+									</div>
+									<div class="slide-cart-body">
+										{% if carrito_items %}
+											{% for item in carrito_items %}
 											<div class="product-widget">
 												<div class="product-img">
-													<img src="{% static 'img/product01.png' %}" alt="">
-												</div>
-												
-												<button class="delete"><i class="fa fa-close"></i></button>
-											</div>
-
-											<div class="product-widget">
-												<div class="product-img">
-													<img src="{% static 'img/product02.png' %}" alt="">
+													<img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
 												</div>
 												<div class="product-body">
-													
-												
-											
+													<h4 class="product-name">{{ item.producto.nombre }}</h4>
+													<p class="product-price">
+														$<span class="item-price">{{ item.producto.precio }}</span>
+														x 
+														<input type="number" min="1" class="item-qty" data-id="{{ item.producto.id }}" value="{{ item.cantidad }}" style="width:50px; text-align:center;">
+														= $<span class="item-subtotal">{{ item.subtotal }}</span>
+													</p>
+												</div>
+												<button class="delete delete-cart-item" data-id="{{ item.producto.id }}"><i class="fa fa-close"></i></button>
+											</div>
+											{% endfor %}
+										{% else %}
+											<p class="text-center">Tu carrito está vacío.</p>
+										{% endif %}
+									</div>
+									<div class="slide-cart-footer">
+										<div class="cart-summary">
+											<h5>SUBTOTAL: ${{ carrito_total }}</h5>
 										</div>
 										<div class="cart-btns">
-											<a href="{% url 'carrito' %}">Ver Carrito</a>
-											
+											<a href="{% url 'carrito' %}" class="btn btn-primary btn-block">Ver Carrito</a>
 										</div>
 									</div>
 								</div>
-								<!-- /Cart -->
-
+								<div id="cartOverlay" class="cart-overlay"></div>
 								<!-- Menu Toogle -->
+
 								<div class="menu-toggle">
 									<a href="#">
 										<i class="fa fa-bars"></i>
@@ -271,10 +375,10 @@
 								<h3 class="footer-title">Sobre Nosotros</h3>
 								<p>En AutoParts nos especializamos en la venta de repuestos automotrices de calidad, tanto originales como alternativos, para una amplia gama de vehículos.
                                    Nuestra misión es ayudarte a mantener tu auto en óptimas condiciones, con el respaldo de un equipo experto y atención personalizada.</p>
-								<ul class="contactos">
-									<li><a href="#"><i class="fa fa-map-marker"></i>San Bernardo</a></li>
-									<li><a href="#"><i class="fa fa-phone"></i>+569 3866 4589</a></li>
-									<li><a href="#"><i class="fa fa-envelope-o"></i>Autoparts@gmail.com</a></li>
+								<ul class="contactos text-white">
+									<li><i class="fa fa-map-marker"></i>San Bernardo</li>
+									<li><i class="fa fa-phone"></i>+569 3866 4589</li>
+									<li><i class="fa fa-envelope-o"></i>Autoparts@gmail.com</li>
 								</ul>
 							</div>
 						</div>
@@ -293,7 +397,89 @@
 
 		<!-- Custom Scripts -->
 		<script>
-			document.getElementById('loginForm').addEventListener('submit', async function(e) {
+		function asignarEventosCarrito() {
+			// Eliminar producto
+			document.querySelectorAll('.delete-cart-item').forEach(function(btn) {
+				btn.onclick = function(e) {
+					e.preventDefault();
+					var itemId = this.getAttribute('data-id');
+					fetch("{% url 'eliminar_del_carrito' 0 %}".replace('0', itemId), {
+						method: "POST",
+						headers: {
+							"X-CSRFToken": "{{ csrf_token }}",
+							"X-Requested-With": "XMLHttpRequest"
+						},
+						credentials: "same-origin"
+					})
+					.then(response => response.json())
+					.then(data => {
+						if(data.status === "ok") {
+							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.cart_total;
+							document.getElementById('cartQty').textContent = data.cart_count;
+							var cartBody = document.querySelector('.slide-cart-body');
+							cartBody.innerHTML = "";
+							if (data.productos.length > 0) {
+								data.productos.forEach(function(item) {
+									cartBody.innerHTML += `
+									<div class="product-widget">
+										<div class="product-img">
+											<img src="${item.imagen}" alt="${item.nombre}">
+										</div>
+										<div class="product-body">
+											<h4 class="product-name">${item.nombre}</h4>
+											<p class="product-price">
+												$<span class="item-price">${item.precio}</span>
+												x 
+												<input type="number" min="1" class="item-qty" data-id="${item.id}" value="${item.cantidad}" style="width:50px; text-align:center;">
+												= $<span class="item-subtotal">${item.subtotal}</span>
+											</p>
+										</div>
+										<button class="delete delete-cart-item" data-id="${item.id}"><i class="fa fa-close"></i></button>
+									</div>
+									`;
+								});
+							} else {
+								cartBody.innerHTML = '<p class="text-center">Tu carrito está vacío.</p>';
+							}
+							// Vuelve a asignar eventos a los nuevos elementos
+							asignarEventosCarrito();
+						}
+					});
+				};
+			});
+
+			// Cambiar cantidad
+			document.querySelectorAll('.item-qty').forEach(function(input) {
+				input.onchange = function() {
+					var productoId = this.getAttribute('data-id');
+					var cantidad = this.value;
+					var inputElem = this;
+					fetch("{% url 'actualizar_cantidad_carrito' %}", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-CSRFToken": "{{ csrf_token }}",
+							"X-Requested-With": "XMLHttpRequest"
+						},
+						credentials: "same-origin",
+						body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
+					})
+					.then(response => response.json())
+					.then(data => {
+						if(data.status === "ok") {
+							var productWidget = inputElem.closest('.product-widget');
+							if(productWidget) {
+								productWidget.querySelector('.item-subtotal').textContent = data.subtotal;
+							}
+							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.total;
+						}
+					});
+				};
+			});
+		}
+
+		// Login form submission with AJAX
+		document.getElementById('loginForm').addEventListener('submit', async function(e) {
 			e.preventDefault();
 			const username = document.getElementById('id_username').value;
 			const password = document.getElementById('id_password').value;
@@ -319,6 +505,127 @@
 				errorDiv.classList.add('shake');
 				setTimeout(() => errorDiv.classList.remove('shake'), 400);
 			}
+		});
+
+		document.querySelectorAll('.item-qty').forEach(function(input) {
+			input.addEventListener('change', function() {
+				var productoId = this.getAttribute('data-id');
+				var cantidad = this.value;
+				var inputElem = this;
+				fetch("{% url 'actualizar_cantidad_carrito' %}", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-CSRFToken": "{{ csrf_token }}",
+						"X-Requested-With": "XMLHttpRequest"
+					},
+					body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
+				})
+				.then(response => response.json())
+				.then(data => {
+					if(data.status === "ok") {
+						// Actualiza el subtotal de ese producto
+						var productWidget = inputElem.closest('.product-widget');
+						if(productWidget) {
+							productWidget.querySelector('.item-subtotal').textContent = data.subtotal;
+						}
+						// Actualiza el total del carrito
+						document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.total;
+					}
+				});
+			});
+		});
+
+		// Functions to handle slide-in cart and AJAX delete
+		document.addEventListener('DOMContentLoaded', function() {
+			// Slide-in Cart functionality
+			var openBtn = document.getElementById('openCart');
+			var closeBtn = document.getElementById('closeCart');
+			var slideCart = document.getElementById('slideCart');
+			var cartOverlay = document.getElementById('cartOverlay');
+			if (openBtn && closeBtn && slideCart && cartOverlay) {
+				openBtn.addEventListener('click', function(e) {
+					e.preventDefault();
+					slideCart.classList.add('open');
+					cartOverlay.classList.add('open');
+				});
+				closeBtn.addEventListener('click', function() {
+					slideCart.classList.remove('open');
+					cartOverlay.classList.remove('open');
+				});
+				cartOverlay.addEventListener('click', function() {
+					slideCart.classList.remove('open');
+					cartOverlay.classList.remove('open');
+				});
+				document.addEventListener('keydown', function(e) {
+					if (e.key === 'Escape') {
+						slideCart.classList.remove('open');
+						cartOverlay.classList.remove('open');
+					}
+				});
+			}
+			
+			// Asignar eventos al carrito
+			asignarEventosCarrito();
+
+			// Agregar producto al carrito con AJAX
+			document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.preventDefault();
+					var productoId = this.getAttribute('data-id');
+					fetch("{% url 'agregar_al_carrito' %}", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"X-CSRFToken": "{{ csrf_token }}",
+							"X-Requested-With": "XMLHttpRequest"
+						},
+						body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+					})
+					.then(response => response.json())
+					.then(data => {
+						if(data.status === "ok") {
+							// Actualiza el contador del carrito en tiempo real
+							if (data.cart_count !== undefined) {
+								document.getElementById('cartQty').textContent = data.cart_count;
+							}
+							// Actualiza el contenido del slide-cart
+							var cartBody = document.querySelector('.slide-cart-body');
+							cartBody.innerHTML = "";
+							if (data.productos.length > 0) {
+								data.productos.forEach(function(item) {
+									cartBody.innerHTML += `
+									<div class="product-widget">
+										<div class="product-img">
+											<img src="${item.imagen}" alt="${item.nombre}">
+										</div>
+										<div class="product-body">
+											<h4 class="product-name">${item.nombre}</h4>
+											<p class="product-price">
+												$<span class="item-price">${item.precio}</span>
+												x 
+												<input type="number" min="1" class="item-qty" data-id="${item.id}" value="${item.cantidad}" style="width:50px; text-align:center;">
+												= $<span class="item-subtotal">${item.subtotal}</span>
+											</p>
+										</div>
+										<button class="delete delete-cart-item" data-id="${item.id}"><i class="fa fa-close"></i></button>
+									</div>
+									`;
+								});
+							} else {
+								cartBody.innerHTML = '<p class="text-center">Tu carrito está vacío.</p>';
+							}
+							// Actualiza el subtotal
+							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.cart_total;
+							// Reasigna eventos
+							asignarEventosCarrito();
+							// Abre el slide-cart
+							document.getElementById('slideCart').classList.add('open');
+							document.getElementById('cartOverlay').classList.add('open');
+						}
+					});
+				});
+			});
 		});
 		</script>
 

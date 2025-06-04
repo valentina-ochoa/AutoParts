@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Pago Cancelado{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Pago cancelado o no exitoso</h2>
+    <p>Tu pago no fue procesado. Si lo deseas, puedes intentarlo nuevamente.</p>
+    <a href="{% url 'carrito' %}" class="btn btn-primary">Volver al carrito</a>
+</div>
+{% endblock %}

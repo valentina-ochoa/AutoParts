@@ -14,7 +14,7 @@ class Usuario(AbstractUser):
         return self.username
 
 class Producto(models.Model):
-    codigo_producto = models.CharField(max_length=50, unique=True, primary_key=True, verbose_name="Código del Producto")
+    codigo_producto = models.CharField(max_length=50, unique=True, verbose_name="Código del Producto")
     marca = models.CharField(max_length=100)
     codigo_interno = models.CharField(max_length=50, unique=True, verbose_name="Código Interno")
     nombre = models.CharField(max_length=200)
@@ -24,6 +24,7 @@ class Producto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")
     precio = models.IntegerField(default=999999999, verbose_name="Precio Base (CLP)")  # Valor por defecto de 999999999 CLP
+    etiquetas = models.CharField(max_length=255, null=True, blank=True, verbose_name="Etiquetas del Producto")
 
     estado = models.CharField(max_length=20, default='activo', choices=[
         ('activo', 'Activo'),

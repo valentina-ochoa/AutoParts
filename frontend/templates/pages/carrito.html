@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container my-4" style="margin-top: 4rem; margin-bottom: 4rem;">
     <h2>Tu Carrito</h2>
 
     {% if items %}
@@ -19,8 +19,7 @@
                     <tr>
                         <td>{{ item.producto.nombre }}</td>
                         <td>${{ item.producto.precio }}</td>
-                        
-                        
+                        <td>{{ item.cantidad }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -31,9 +30,11 @@
 
         
         <div class="mt-4">
-            <a href="{% url 'iniciar_pago' %}" class="btn btn-primary">Pagar</a>
+            <form method="POST" action="/api/pago/iniciar/" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Pagar</button>
+            </form>
             <a href="{% url 'limpiar_carrito' %}" class="btn btn-warning"> Limpiar Carrito</a>
-
         </div>
     {% else %}
         <div class="alert alert-warning mt-4">

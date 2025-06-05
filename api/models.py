@@ -14,9 +14,7 @@ class Usuario(AbstractUser):
         return self.username
 
 class Producto(models.Model):
-    codigo_producto = models.CharField(max_length=50, unique=True, verbose_name="Código del Producto")
     marca = models.CharField(max_length=100)
-    codigo_interno = models.CharField(max_length=50, unique=True, verbose_name="Código Interno")
     nombre = models.CharField(max_length=200)
     stock = models.PositiveIntegerField(default=0, verbose_name="Stock Disponible")
     imagen = models.ImageField(upload_to='imgProductos/', null=True, blank=True, verbose_name="Imagen del Producto")

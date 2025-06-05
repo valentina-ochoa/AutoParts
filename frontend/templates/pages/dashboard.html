@@ -1,0 +1,513 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <h2 class="mb-4">Dashboard de Administración</h2>
+    <div class="row">
+        <div class="col-xs-12 col-sm-2">
+            <ul class="nav nav-pills nav-stacked" id="dashboardTabs">
+                <li class="active"><a href="#resumen" data-toggle="tab">Resumen General</a></li>
+                <li><a href="#inventario" data-toggle="tab">Inventario Inteligente</a></li>
+                <li><a href="#productos" data-toggle="tab">Gestión de Productos</a></li>
+                <li><a href="#pedidos" data-toggle="tab">Pedidos y Ventas</a></li>
+                <li><a href="#clientes" data-toggle="tab">Clientes y Distribuidores</a></li>
+                <li><a href="#promos" data-toggle="tab">Promociones y Descuentos</a></li>
+                <li><a href="#soporte" data-toggle="tab">Soporte y Mensajes</a></li>
+                <li><a href="#logs" data-toggle="tab">Logs y Auditoría</a></li>
+                <li><a href="#config" data-toggle="tab">Configuración</a></li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-10">
+            <div class="tab-content" id="dashboardTabsContent">
+                <div class="tab-pane fade in active" id="resumen">
+                    <!-- Resumen General -->
+                </div>
+                <div class="tab-pane fade" id="inventario">
+                    <!-- Inventario Inteligente -->
+                </div>
+                <div class="tab-pane fade" id="productos">
+                    <!--
+                    Pestaña 'Gestión de Productos':
+                    - Tabla con productos reales
+                    - Inputs editables para precio y stock
+                    - Select para estado
+                    - Botón 'Editar' abre modal con datos del producto
+                    - Modal Bootstrap para edición de producto
+                    - Script jQuery para cargar datos en el modal
+                    -->
+                    <div class="clearfix mb-3">
+                        <h4 class="pull-left">Gestión de Productos</h4>
+                        <button class="btn btn-success pull-right" data-toggle="modal" data-target="#modalNuevoProducto">+ Nuevo Producto</button>
+                    </div>
+                    <form class="form-inline mb-3" style="margin-bottom:15px;">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Buscar por nombre o código">
+                        </div>
+                        <div class="form-group" style="margin-left:8px;">
+                            <select class="form-control">
+                                <option value="">Estado</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="descontinuado">Descontinuado</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-left:8px;">
+                            <select class="form-control">
+                                <option value="">Proveedor</option>
+                                <!-- Opciones dinámicas -->
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" style="margin-left:8px;">Filtrar</button>
+                    </form>
+                    <!--
+                    Botones de acciones masivas:
+                    - Activar seleccionados
+                    - Inactivar seleccionados
+                    - Descontinuar seleccionados
+                    -->
+                    <form id="formAccionMasiva">
+                        <div class="mb-2" style="margin-bottom:10px;">
+                            <button class="btn btn-primary btn-xs btn-accion-masiva" type="button" data-accion="activo" style="background-color:#337ab7; border-color:#2e6da4; color:white;">Activar seleccionados</button>
+                            <button class="btn btn-warning btn-xs btn-accion-masiva" type="button" data-accion="inactivo">Inactivar seleccionados</button>
+                            <button class="btn btn-danger btn-xs btn-accion-masiva" type="button" data-accion="descontinuado">Descontinuar seleccionados</button>
+                        </div>
+                        <div class="table-responsive" style="max-height: 70vh; overflow-x: auto; overflow-y: auto;">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="checkAllProductos"></th>
+                                        <th>Nombre</th>
+                                        <th>Proveedor</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in productos %}
+                                    <tr data-producto-id="{{ producto.id }}">
+                                        <td><input type="checkbox" name="seleccionados" value="{{ producto.id }}"></td>
+                                        <td>{{ producto.nombre }}</td>
+                                        <td>{{ producto.proveedor }}</td>
+                                        <td><input type="number" class="form-control input-cambio-rapido" value="{{ producto.precio }}" name="precio_{{ producto.id }}" data-campo="precio" style="min-width:90px; width:110px; text-align:right;"></td>
+                                        <td><input type="number" class="form-control input-cambio-rapido" value="{{ producto.stock }}" name="stock_{{ producto.id }}" data-campo="stock"></td>
+                                        <td>
+                                            <select class="form-control input-cambio-rapido" name="estado_{{ producto.id }}" data-campo="estado" style="min-width:120px; width:130px;">
+                                                <option value="activo" {% if producto.estado == 'activo' %}selected{% endif %}>Activo</option>
+                                                <option value="inactivo" {% if producto.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                                                <option value="descontinuado" {% if producto.estado == 'descontinuado' %}selected{% endif %}>Descontinuado</option>
+                                            </select>
+                                        </td>
+                                        <td style="white-space:nowrap; font-size:12px; color:#888; vertical-align:middle;">{{ producto.fecha_creacion|date:'Y-m-d' }}</td>
+                                        <td>
+                                            <div class="btn-group-vertical" style="width:100%;">
+                                                <button class="btn btn-info btn-xs btn-editar-producto" type="button" data-id="{{ producto.id }}"
+                                                    data-nombre="{{ producto.nombre }}"
+                                                    data-proveedor="{{ producto.proveedor }}"
+                                                    data-precio="{{ producto.precio }}"
+                                                    data-stock="{{ producto.stock }}"
+                                                    data-estado="{{ producto.estado }}"
+                                                    style="width:100%; margin-bottom:4px;"
+                                                >Editar</button>
+                                                <button class="btn btn-danger btn-xs btn-eliminar-producto" type="button" style="width:100%; margin-bottom:4px;">Eliminar</button>
+                                                <button class="btn btn-success btn-xs btn-confirmar-cambio" type="button" style="display:none; width:100%;">Confirmar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="9">No hay productos registrados.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                    <!-- Modal Edición Producto -->
+                    <div class="modal fade" id="modalEditarProducto" tabindex="-1" role="dialog" aria-labelledby="modalEditarProductoLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="modalEditarProductoLabel">Editar Producto</h4>
+                          </div>
+                          <form id="formEditarProducto" method="post">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <input type="hidden" name="producto_id" id="editProductoId">
+                                <div class="form-group">
+                                    <label for="editNombre">Nombre</label>
+                                    <input type="text" class="form-control" name="nombre" id="editNombre" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editProveedor">Proveedor</label>
+                                    <input type="text" class="form-control" name="proveedor" id="editProveedor">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editPrecio">Precio</label>
+                                    <input type="number" class="form-control" name="precio" id="editPrecio" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editStock">Stock</label>
+                                    <input type="number" class="form-control" name="stock" id="editStock" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editEstado">Estado</label>
+                                    <select class="form-control" name="estado" id="editEstado">
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo">Inactivo</option>
+                                        <option value="descontinuado">Descontinuado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                              <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Modal Confirmar Eliminación -->
+                    <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" role="dialog" aria-labelledby="modalConfirmarEliminarLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content" style="border:2px solid #d9534f;">
+                          <div class="modal-header" style="background:#d9534f; color:white;">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:white;"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="modalConfirmarEliminarLabel"><i class="fa fa-exclamation-triangle"></i> Confirmar eliminación</h4>
+                          </div>
+                          <div class="modal-body" style="color:#a94442; font-size:16px;">
+                            ¿Está seguro que desea eliminar el producto <b id="nombreProductoEliminar"></b>?
+                            <br><span style="font-size:13px; color:#a94442;">Esta acción no se puede deshacer.</span>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-danger" id="btnConfirmarEliminarProducto">Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Modal Nuevo Producto -->
+                    <div class="modal fade" id="modalNuevoProducto" tabindex="-1" role="dialog" aria-labelledby="modalNuevoProductoLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="modalNuevoProductoLabel">Nuevo Producto</h4>
+                          </div>
+                          <form id="formNuevoProducto" method="post">
+                            <div class="modal-body">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="nuevoNombre">Nombre</label>
+                                    <input type="text" class="form-control" name="nombre" id="nuevoNombre" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuevoProveedor">Proveedor</label>
+                                    <input type="text" class="form-control" name="proveedor" id="nuevoProveedor">
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuevoPrecio">Precio</label>
+                                    <input type="number" class="form-control" name="precio" id="nuevoPrecio" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuevoStock">Stock</label>
+                                    <input type="number" class="form-control" name="stock" id="nuevoStock" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nuevoEstado">Estado</label>
+                                    <select class="form-control" name="estado" id="nuevoEstado">
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo" selected>Inactivo</option>
+                                        <option value="descontinuado">Descontinuado</option>
+                                    </select>
+                                </div>
+                                <div id="nuevoProductoError" class="alert alert-danger" style="display:none;"></div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                              <button type="submit" class="btn btn-success">Crear Producto</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pedidos">
+                    <!-- Pedidos y Ventas -->
+                </div>
+                <div class="tab-pane fade" id="clientes">
+                    <!-- Clientes y Distribuidores -->
+                </div>
+                <div class="tab-pane fade" id="promos">
+                    <!-- Promociones y Descuentos -->
+                </div>
+                <div class="tab-pane fade" id="soporte">
+                    <!-- Soporte y Mensajes -->
+                </div>
+                <div class="tab-pane fade" id="logs">
+                    <!-- Logs y Auditoría -->
+                </div>
+                <div class="tab-pane fade" id="config">
+                    <!-- Configuración -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block custom_script %}
+<script>
+// Activar el tab correcto al hacer clic (Bootstrap 3)
+$(function(){
+    $('#dashboardTabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+    // Abrir modal y cargar datos del producto
+    $('.btn-editar-producto').on('click', function() {
+        var btn = $(this);
+        $('#editProductoId').val(btn.data('id'));
+        $('#editNombre').val(btn.data('nombre'));
+        $('#editCodigo').val(btn.data('codigo'));
+        $('#editProveedor').val(btn.data('proveedor'));
+        $('#editPrecio').val(btn.data('precio'));
+        $('#editStock').val(btn.data('stock'));
+        $('#editEstado').val(btn.data('estado'));
+        $('#modalEditarProducto').modal('show');
+    });
+
+    // Abrir modal de nuevo producto SOLO si no es submit
+    $('.btn.btn-success.pull-right').on('click', function(e) {
+        e.preventDefault();
+        $('#formNuevoProducto')[0].reset();
+        $('#modalNuevoProducto').modal('show');
+    });
+
+    // Eliminar el atributo data-toggle y data-target del botón para evitar doble trigger Bootstrap
+    $('.btn.btn-success.pull-right').removeAttr('data-toggle').removeAttr('data-target');
+
+    // (Opcional) Manejo del submit del formulario aquí
+    $('#formEditarProducto').on('submit', function(e){
+        e.preventDefault();
+        var form = $(this);
+        var data = form.serialize();
+        $.ajax({
+            url: '/api/producto/editar/',
+            method: 'POST',
+            data: data,
+            success: function(resp) {
+                if(resp.status === 'ok') {
+                    $('#modalEditarProducto').modal('hide');
+                    // Actualiza la fila del producto en la tabla sin recargar
+                    var id = $('#editProductoId').val();
+                    var row = $('input[name="seleccionados"][value="'+id+'"]').closest('tr');
+                    row.find('td:eq(1)').text($('#editNombre').val());
+                    row.find('td:eq(3)').text($('#editProveedor').val());
+                    row.find('input[name="precio_'+id+'"]').val($('#editPrecio').val());
+                    row.find('input[name="stock_'+id+'"]').val($('#editStock').val());
+                    row.find('select[name="estado_'+id+'"]').val($('#editEstado').val());
+                    // Mensaje de éxito
+                    $('<div class="alert alert-success alert-dismissible" role="alert" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:200px;">'+
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ 
+                        '¡Producto actualizado con éxito!'+
+                    '</div>').appendTo('body').delay(2000).fadeOut(500, function(){$(this).remove();});
+                } else {
+                    alert('Error al guardar: ' + (resp.msg || 'Error desconocido'));
+                }
+            },
+            error: function() {
+                alert('Error de red al guardar los cambios.');
+            }
+        });
+    });
+
+    // Crear nuevo producto vía AJAX
+    $('#formNuevoProducto').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var data = form.serialize();
+        var btn = form.find('button[type="submit"]');
+        var errorDiv = $('#nuevoProductoError');
+        errorDiv.hide().text("");
+        // Validación frontend: precio > 0
+        var precio = parseFloat($('#nuevoPrecio').val());
+        if (isNaN(precio) || precio <= 0) {
+            errorDiv.text('El precio debe ser mayor a 0.').show();
+            btn.prop('disabled', false);
+            return;
+        }
+        btn.prop('disabled', true);
+        $.ajax({
+            url: '/api/producto/crear/',
+            method: 'POST',
+            data: data,
+            success: function(resp) {
+                if(resp.status === 'ok') {
+                    $('#modalNuevoProducto').modal('hide');
+                    $('<div class="alert alert-success alert-dismissible" role="alert" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:200px;">'+
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ 
+                        '¡Producto creado con éxito!'+
+                    '</div>').appendTo('body').delay(2000).fadeOut(500, function(){$(this).remove();});
+                    setTimeout(function(){ location.reload(); }, 1200);
+                } else {
+                    errorDiv.text(resp.msg || 'Error desconocido').show();
+                }
+                btn.prop('disabled', false);
+            },
+            error: function() {
+                errorDiv.text('Error de red al crear el producto.').show();
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Guardar y restaurar la pestaña activa al recargar
+    $('#dashboardTabs a').on('shown.bs.tab', function (e) {
+        localStorage.setItem('dashboardTab', $(e.target).attr('href'));
+    });
+    var lastTab = localStorage.getItem('dashboardTab');
+    if(lastTab) {
+        $('#dashboardTabs a[href="'+lastTab+'"], #dashboardTabs a[data-target="'+lastTab+'"], #dashboardTabs a').filter(function(){return $(this).attr('href')===lastTab;}).tab('show');
+    }
+
+    // Selección masiva de productos
+    $('#checkAllProductos').on('change', function() {
+        var checked = $(this).prop('checked');
+        $('input[name="seleccionados"]').prop('checked', checked);
+    });
+
+    // Acción masiva: activar, inactivar, descontinuar
+    $('.btn-accion-masiva').on('click', function() {
+        var accion = $(this).data('accion');
+        var seleccionados = [];
+        $('input[name="seleccionados"]:checked').each(function(){
+            seleccionados.push($(this).val());
+        });
+        if(seleccionados.length === 0) {
+            alert('Selecciona al menos un producto.');
+            return;
+        }
+        if(!confirm('¿Estás seguro de aplicar la acción a los productos seleccionados?')) return;
+        $.ajax({
+            url: '/api/producto/accion_masiva/',
+            method: 'POST',
+            data: {
+                'ids': seleccionados.join(','),
+                'accion': accion,
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(resp) {
+                if(resp.status === 'ok') {
+                    $('<div class="alert alert-success alert-dismissible" role="alert" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:200px;">'+
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ 
+                        '¡Acción masiva realizada con éxito!'+
+                    '</div>').appendTo('body').delay(2000).fadeOut(500, function(){$(this).remove();});
+                    setTimeout(function(){ location.reload(); }, 1200);
+                } else {
+                    alert('Error: ' + (resp.msg || 'Error desconocido'));
+                }
+            },
+            error: function() {
+                alert('Error de red al realizar la acción.');
+            }
+        });
+    });
+
+    // Mostrar botón de confirmar al cambiar precio, stock o estado
+    $('.input-cambio-rapido').on('input change', function() {
+        var row = $(this).closest('tr');
+        var btn = row.find('.btn-confirmar-cambio');
+        btn.show();
+        btn.prop('disabled', false); // Habilitar siempre que haya un cambio
+    });
+
+    // Confirmar cambio rápido
+    $('.btn-confirmar-cambio').on('click', function() {
+        var row = $(this).closest('tr');
+        var precio = row.find('input[data-campo="precio"]').val();
+        var stock = row.find('input[data-campo="stock"]').val();
+        var estado = row.find('select[data-campo="estado"]').val();
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.ajax({
+            url: '/api/producto/editar/',
+            method: 'POST',
+            data: {
+                'precio': precio,
+                'stock': stock,
+                'estado': estado,
+                // Enviar también los campos obligatorios para evitar error NOT NULL
+                'nombre': row.find('td:eq(1)').text().trim(),
+                'proveedor': row.find('td:eq(3)').text().trim(),
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(resp) {
+                if(resp.status === 'ok') {
+                    $('<div class="alert alert-success alert-dismissible" role="alert" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:200px;">'+
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ 
+                        '¡Cambio guardado con éxito!'+
+                    '</div>').appendTo('body').delay(2000).fadeOut(500, function(){$(this).remove();});
+                    btn.hide();
+                    btn.prop('disabled', false); // Habilitar para futuros cambios
+                } else {
+                    alert('Error al guardar: ' + (resp.msg || 'Error desconocido'));
+                    btn.prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('Error de red al guardar los cambios.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Eliminar producto con modal de confirmación
+    var productoAEliminar = null;
+    var rowAEliminar = null;
+    $('.btn-eliminar-producto').on('click', function() {
+        var row = $(this).closest('tr');
+        var id = row.data('producto-id');
+        var nombre = row.find('td:eq(1)').text().trim();
+        productoAEliminar = id;
+        rowAEliminar = row;
+        $('#nombreProductoEliminar').text(nombre);
+        $('#modalConfirmarEliminar').modal('show');
+    });
+    $('#btnConfirmarEliminarProducto').on('click', function() {
+        var id = productoAEliminar;
+        var row = rowAEliminar;
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.ajax({
+            url: '/api/producto/eliminar/',
+            method: 'POST',
+            data: {
+                'producto_id': id,
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(resp) {
+                if(resp.status === 'ok') {
+                    $('#modalConfirmarEliminar').modal('hide');
+                    row.fadeOut(400, function(){ $(this).remove(); });
+                    $('<div class="alert alert-success alert-dismissible" role="alert" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:200px;">'+
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+ 
+                        '¡Producto eliminado con éxito!'+
+                    '</div>').appendTo('body').delay(2000).fadeOut(500, function(){$(this).remove();});
+                } else {
+                    alert('Error al eliminar: ' + (resp.msg || 'Error desconocido'));
+                }
+                btn.prop('disabled', false);
+            },
+            error: function() {
+                alert('Error de red al eliminar el producto.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

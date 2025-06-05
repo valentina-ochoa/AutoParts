@@ -9,37 +9,6 @@ from django.views.decorators.http import require_POST
 from transbank.webpay.webpay_plus.transaction import Transaction
 from transbank.common.integration_type import IntegrationType
 
-
-
-# Las siguientes funciones han sido migradas a api/views.py y deben ser consumidas solo vía API.
-# Se mantienen aquí solo como referencia temporal y serán eliminadas próximamente.
-# from api.views import agregar_al_carrito, eliminar_del_carrito, actualizar_cantidad_carrito, carrito_view, limpiar_carrito, limpiar_carrito_y_volver_inicio
-
-# @csrf_exempt
-# @require_POST
-# def actualizar_cantidad_carrito(request):
-#     pass
-
-# @csrf_exempt
-# @require_POST
-# def eliminar_del_carrito(request, item_id):
-#     pass
-
-# @csrf_exempt
-# @require_POST
-# def agregar_al_carrito(request):
-#     pass
-
-# @csrf_exempt
-# def carrito_view(request):
-#     pass
-
-# def limpiar_carrito(request):
-#     pass
-
-# def limpiar_carrito_y_volver_inicio(request):
-#     pass
-
 def index(request):
     productos = Producto.objects.all()
     carrito_items = []
@@ -181,86 +150,15 @@ def limpiar_carrito_y_volver_inicio(request):
     response.set_cookie('carrito', json.dumps({}), max_age=60*60*24*7, path='/')
     return response
 
-#Iniciar pago
-#@csrf_exempt
-#def iniciar_pago(request):
-#    print("Entrando a iniciar_pago")
-#    if request.method == 'POST':
-#        print("Método POST recibido")
-#        # Obtén el total del carrito (ajusta según tu lógica)
-#        if request.user.is_authenticated:
-#            print("Usuario autenticado")
-#            try:
-#                carrito = Carrito.objects.get(usuario=request.user)
-#                total = carrito.total()
-#                print(f"Total carrito usuario: {total}")
-#            except Carrito.DoesNotExist:
-#                print("No existe carrito para usuario")
-#                total = 0
-#        else:
-#            print("Usuario no autenticado, usando cookie")
-#            carrito_cookie = request.COOKIES.get('carrito')
-#            total = 0
-#            if carrito_cookie:
-#                try:
-#                    carrito_data = json.loads(carrito_cookie)
-#                    for item in carrito_data.values():
-#                        try:
-#                            producto = Producto.objects.get(pk=item['producto_id'])
-#                            cantidad = item['cantidad']
-#                            subtotal = producto.precio * cantidad
-#                            total += subtotal
-#                        except Producto.DoesNotExist:
-#                            print(f"Producto {item['producto_id']} no existe")
-#                            continue
-#                except Exception as e:
-#                    print(f"Error leyendo cookie carrito: {e}")
-#                    total = 0
-#            print(f"Total carrito cookie: {total}")
-#
-#        # Datos para Transbank
-#        buy_order = f"ORDER-{request.user.id if request.user.is_authenticated else 'anon'}-{Carrito.objects.count()}"
-#        session_id = str(request.user.id) if request.user.is_authenticated else request.session.session_key or "anon"
-#        amount = int(total)
-#        return_url = request.build_absolute_uri('/pago/exito/')
-#        print(f"Creando transacción Transbank: buy_order={buy_order}, session_id={session_id}, amount={amount}, return_url={return_url}")
-#
-#        # Configura Transbank en modo integración
-#        tx = Transaction(IntegrationType.TEST)
-#        response = tx.create(buy_order, session_id, amount, return_url)
-#        print(f"Respuesta Transbank: {response}")
-#
-#        # Redirige al usuario a Webpay
-#        url = response['url']
-#        token = response['token']
-#        print(f"Redirigiendo a Webpay: url={url}, token={token}")
-#        return render(request, 'pages/redirect_webpay.html', {'url': url, 'token': token})
-#
-#    print("Método GET, mostrando iniciar_pago.html")
-#    return render(request, 'pages/iniciar_pago.html')
-
-#def pago_cancelado(request):
-#    return render(request, 'pages/pago_cancelado.html')
-
-#@csrf_exempt
-#def pago_exito(request):
-#    token = request.POST.get('token_ws')
-#    if not token:
-#        # No hay token, el usuario canceló o falló el pago
-#        return redirect('pago_cancelado')
-#
-#    try:
-#        tx = Transaction()
-#        response = tx.commit(token)
-#        if response['status'] == 'AUTHORIZED':
-#            # Pago exitoso
-#            return render(request, 'pages/pago_exito.html', {'response': response})
-#        else:
-#            # Pago rechazado o fallido
-#            return redirect('pago_cancelado')
-#    except Exception as e:
-#        # Error en la confirmación
-#        return redirect('pago_cancelado')
+def dashboard(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('home')
+    
+    productos = Producto.objects.all()
+    context = {
+        'productos': productos,
+    }
+    return render(request, 'pages/dashboard.html', context)
 
 
 

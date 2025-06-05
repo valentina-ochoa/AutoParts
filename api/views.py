@@ -437,5 +437,95 @@ def get_or_create_cart(request):
         return cart
     return None
 
+@csrf_exempt
+def editar_producto(request):
+    """API para editar un producto desde el dashboard admin."""
+    if request.method == 'POST':
+        producto_id = request.POST.get('producto_id')
+        nombre = request.POST.get('nombre')
+        codigo = request.POST.get('codigo')
+        proveedor = request.POST.get('proveedor')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+        estado = request.POST.get('estado')
+        try:
+            producto = Producto.objects.get(pk=producto_id)
+            producto.nombre = nombre
+            producto.proveedor = proveedor
+            producto.precio = int(precio)
+            producto.stock = int(stock)
+            producto.estado = estado
+            producto.save()
+            return JsonResponse({'status': 'ok'})
+        except Producto.DoesNotExist:
+            return JsonResponse({'status': 'error', 'msg': 'Producto no encontrado'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+    return JsonResponse({'status': 'error', 'msg': 'Método no permitido'})
+
+@csrf_exempt
+def accion_masiva_producto(request):
+    """API para acciones masivas sobre productos: activar, inactivar, descontinuar."""
+    if request.method == 'POST':
+        ids = request.POST.get('ids', '')
+        accion = request.POST.get('accion')
+        id_list = [int(i) for i in ids.split(',') if i.isdigit()]
+        if not id_list or accion not in ['activo', 'inactivo', 'descontinuado']:
+            return JsonResponse({'status': 'error', 'msg': 'Datos inválidos'})
+        try:
+            Producto.objects.filter(id__in=id_list).update(estado=accion)
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+    return JsonResponse({'status': 'error', 'msg': 'Método no permitido'})
+
+@csrf_exempt
+@require_POST
+def eliminar_producto(request):
+    """API para eliminar un producto desde el dashboard admin."""
+    producto_id = request.POST.get('producto_id')
+    if not producto_id:
+        return JsonResponse({'status': 'error', 'msg': 'ID de producto requerido'})
+    try:
+        producto = Producto.objects.get(pk=producto_id)
+        producto.delete()
+        return JsonResponse({'status': 'ok'})
+    except Producto.DoesNotExist:
+        return JsonResponse({'status': 'error', 'msg': 'Producto no encontrado'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'msg': str(e)})
+
+@csrf_exempt
+@require_POST
+def crear_producto(request):
+    """API para crear un nuevo producto desde el dashboard admin."""
+    nombre = request.POST.get('nombre')
+    proveedor = request.POST.get('proveedor')
+    precio = request.POST.get('precio')
+    stock = request.POST.get('stock')
+    estado = request.POST.get('estado') or 'inactivo'
+    if not (nombre  and precio and stock):
+        return JsonResponse({'status': 'error', 'msg': 'Faltan campos obligatorios'})
+    try:
+        if int(precio) <= 0:
+            return JsonResponse({'status': 'error', 'msg': 'El precio debe ser mayor a 0'})
+    except Exception:
+        return JsonResponse({'status': 'error', 'msg': 'Precio inválido'})
+    # Verificar unicidad de código y nombre
+    from .models import Producto
+    if Producto.objects.filter(nombre=nombre).exists():
+        return JsonResponse({'status': 'error', 'msg': 'Ya existe un producto con ese nombre'})
+    try:
+        producto = Producto.objects.create(
+            nombre=nombre,
+            proveedor=proveedor,
+            precio=int(precio),
+            stock=int(stock),
+            estado=estado
+        )
+        return JsonResponse({'status': 'ok', 'id': producto.id})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'msg': str(e)})
+
 
 

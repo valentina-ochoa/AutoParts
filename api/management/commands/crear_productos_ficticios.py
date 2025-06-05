@@ -28,9 +28,7 @@ class Command(BaseCommand):
             nombre = f"{nombre_base} {fake.word().capitalize()} {random.randint(100,999)}"
 
             producto = Producto(
-                codigo_producto=str(uuid.uuid4())[:8],
                 marca=fake.company(),
-                codigo_interno=f"INT-{random.randint(1000, 9999)}",
                 nombre=nombre,
                 stock=random.randint(0, 150),
                 imagen="imgProductos/placeholder.jpg",
@@ -39,7 +37,7 @@ class Command(BaseCommand):
                 etiquetas=", ".join(fake.words(nb=3)),
                 estado="activo",
                 proveedor=fake.company(),
-                slug=slugify(nombre)
+                slug=slugify(nombre + "-" + str(uuid.uuid4())[:8])
             )
             producto.save()
 

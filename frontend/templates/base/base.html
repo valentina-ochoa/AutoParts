@@ -1,4 +1,5 @@
 {% load static %}
+{% load distribuidor_tags %}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -170,6 +171,11 @@
 								<a href="{% url 'dashboard' %}">Dashboard</a>
 							</li>
 						{% endif %}
+						{% if user.is_authenticated %}
+							{% if user|is_distribuidor or user.is_superuser %}
+								<li><a href="/mayorista/">Mayorista</a></li>
+							{% endif %}
+						{% endif %}
 
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -267,15 +273,10 @@
 						<!-- SEARCH BAR -->
 						<div class="col-md-6">
 							<div class="header-search">
-								<form>
-									<select class="input-select">
-										<option value="0" selected hidden>Categorías</option>
-										<option value="1">Repuestos</option>
-										<option value="2">Electrónico</option>
-										<option value="2">Accesorios</option>
-									</select>
-									<input class="input" placeholder="Buscar aquí">
-									<button class="search-btn">Buscar</button>
+								<form id="navbarSearchForm" autocomplete="off" action="/tienda/" method="get">
+									<input class="input" id="navbarSearchInput" name="q" placeholder="Buscar aquí" autocomplete="off">
+									<button class="search-btn" type="submit">Buscar</button>
+									<div id="navbarSearchSuggestions" style="position:absolute; left:0; right:0; z-index:9999; background:white; border:1px solid #ddd; display:none;"></div>
 								</form>
 							</div>
 						</div>
@@ -284,15 +285,6 @@
 						<!-- ACCOUNT -->
 						<div class="col-md-3 clearfix">
 							<div class="header-ctn">
-								<!-- Wishlist -->
-								<div>
-									<a href="#">
-										<i class="fa fa-heart-o"></i>
-										<span>Lista de Deseos</span>
-										<div class="qty">2</div>
-									</a>
-								</div>
-								<!-- /Wishlist -->
 
 								<!-- Cart -->
 								<div class="dropdown cursor-pointer">
@@ -324,7 +316,11 @@
 														= $<span class="item-subtotal">{{ item.subtotal }}</span>
 													</p>
 												</div>
-												<button class="delete delete-cart-item" data-id="{{ item.producto.id }}"><i class="fa fa-close"></i></button>
+												{% if user.is_authenticated %}
+													<button class="delete delete-cart-item" data-id="{{ item.id }}"><i class="fa fa-close"></i></button>
+												{% else %}
+													<button class="delete delete-cart-item" data-id="{{ item.producto.id }}"><i class="fa fa-close"></i></button>
+												{% endif %}
 											</div>
 											{% endfor %}
 										{% else %}
@@ -400,15 +396,27 @@
 		<script src="{% static 'js/nouislider.min.js' %}"></script>
 		<script src="{% static 'js/jquery.zoom.min.js' %}"></script>
 		<script src="{% static 'js/main.js' %}"></script>
+		<script src="{% static 'js/dashboard.js' %}"></script>
 
 		<!-- Custom Scripts -->
 		<script>
+		function getCookieValue(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
 		function asignarEventosCarrito() {
 			// Eliminar producto
 			document.querySelectorAll('.delete-cart-item').forEach(function(btn) {
-				btn.onclick = function(e) {
+				btn.replaceWith(btn.cloneNode(true));
+			});
+			document.querySelectorAll('.delete-cart-item').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
 					e.preventDefault();
 					var itemId = this.getAttribute('data-id');
+					console.log('[DEBUG][CART] Antes de eliminar, cookie carrito:', getCookieValue('carrito'));
 					fetch("{% url 'eliminar_del_carrito' 0 %}".replace('0', itemId), {
 						method: "POST",
 						headers: {
@@ -417,8 +425,15 @@
 						},
 						credentials: "same-origin"
 					})
-					.then(response => response.json())
+					.then(response => {
+						// Mostrar cookies recibidas en la respuesta
+						console.log('[DEBUG][CART] Set-Cookie header:', response.headers.get('Set-Cookie'));
+						// Mostrar todas las cookies actuales
+						console.log('[DEBUG][CART] document.cookie tras response:', document.cookie);
+						return response.json();
+					})
 					.then(data => {
+						console.log('[DEBUG][CART] Después de eliminar, cookie carrito:', getCookieValue('carrito'));
 						if(data.status === "ok") {
 							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.cart_total;
 							document.getElementById('cartQty').textContent = data.cart_count;
@@ -451,7 +466,7 @@
 							asignarEventosCarrito();
 						}
 					});
-				};
+				});
 			});
 
 			// Cambiar cantidad
@@ -472,12 +487,12 @@
 					})
 					.then(response => response.json())
 					.then(data => {
-						if(data.status === "ok") {
+						if(data.success || data.status === "ok") {
 							var productWidget = inputElem.closest('.product-widget');
 							if(productWidget) {
 								productWidget.querySelector('.item-subtotal').textContent = data.subtotal;
 							}
-							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + data.total;
+							document.querySelector('.cart-summary h5').textContent = "SUBTOTAL: $" + (data.total || data.cart_total);
 						}
 					});
 				};
@@ -528,7 +543,7 @@
 					body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
 				})
 				.then(response => response.json())
-				.then(data => {
+				.then (data => {
 					if(data.status === "ok") {
 						// Actualiza el subtotal de ese producto
 						var productWidget = inputElem.closest('.product-widget');
@@ -574,11 +589,24 @@
 			// Asignar eventos al carrito
 			asignarEventosCarrito();
 
-			// Agregar producto al carrito con AJAX
+			// Agregar producto al carrito with AJAX
 			document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
 				btn.addEventListener('click', function(e) {
 					e.preventDefault();
-					var productoId = this.getAttribute('data-id');
+					// Busca input de cantidad en el mismo bloque (hermano o ancestro cercano)
+					var cantidadInput = this.closest('.add-to-cart')?.querySelector('input[name="cantidad"]');
+					var cantidad = 1;
+					if (cantidadInput) {
+						cantidad = parseInt(cantidadInput.value) || 1;
+					}
+					if (cantidad < 1) cantidad = 1;
+					var productoId = this.getAttribute('data-id') || this.dataset.id;
+					// Detecta si estamos en la vista mayorista
+					var esMayorista = this.closest('.section') && this.closest('.section').querySelector('h3') && this.closest('.section').querySelector('h3').textContent.includes('Mayorista');
+					var payload = { producto_id: productoId, cantidad: cantidad };
+					if (esMayorista) {
+						payload.mayorista = true;
+					}
 					fetch("{% url 'agregar_al_carrito' %}", {
 						method: "POST",
 						headers: {
@@ -586,10 +614,14 @@
 							"X-CSRFToken": "{{ csrf_token }}",
 							"X-Requested-With": "XMLHttpRequest"
 						},
-						body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
+						body: JSON.stringify(payload)
 					})
-					.then(response => response.json())
+					.then(response => {
+						console.log('[DEBUG][GLOBAL] fetch response:', response);
+						return response.json();
+					})
 					.then(data => {
+						console.log('[DEBUG][GLOBAL] fetch data:', data);
 						if(data.status === "ok") {
 							// Actualiza el contador del carrito en tiempo real
 							if (data.cart_count !== undefined) {
@@ -633,6 +665,49 @@
 				});
 			});
 		});
+
+		// Solución robusta para abrir el modal de login desde el menú en Bootstrap 3
+$(function() {
+  // Elimina el atributo data-toggle="modal" para evitar conflicto
+  $('a[data-target="#loginModal"]').removeAttr('data-toggle');
+  // Asigna el evento manualmente
+  $(document).on('click', 'a[data-target="#loginModal"]', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setTimeout(function() {
+      var $modal = $('#loginModal');
+      $modal.removeClass('fade').css({display:'block', opacity:1, visibility:'visible'});
+      $modal.find('.modal-dialog').css({display:'block'});
+      $modal.modal('show');
+      // Forzar quitar display:none si quedó pegado
+      $modal[0].style.display = 'block';
+      $modal[0].style.visibility = 'visible';
+      $modal[0].style.opacity = 1;
+      $modal.removeClass('fade').addClass('in');
+      console.log('[DEBUG][LOGIN MODAL] Forzado display:block y visible');
+    }, 350);
+    return false;
+  });
+});
+
+// Función global para inicializar popovers y tooltips Bootstrap 3
+function initPopoversTooltips() {
+  if (typeof $ === 'undefined') return;
+  // Destruye instancias previas para evitar duplicados
+  try {
+    $('[data-toggle="tooltip"]').tooltip('destroy');
+    $('[data-toggle="popover"]').popover('destroy');
+  } catch (e) {}
+  // Inicializa nuevamente
+  var $tooltips = $('[data-toggle="tooltip"]');
+  var $popovers = $('[data-toggle="popover"]');
+  $tooltips.tooltip({container: 'body'});
+  $popovers.popover({container: 'body', html: true});
+}
+
+$(function () {
+  initPopoversTooltips(); // Inicializa al cargar la página
+});
 		</script>
 
 		{% block custom_script %}

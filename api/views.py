@@ -7,14 +7,15 @@ from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 import json
 
 from transbank.webpay.webpay_plus.transaction import Transaction
 from transbank.common.options import WebpayOptions
 from transbank.common.integration_type import IntegrationType
 
-from .models import Producto, Carrito, CarritoItem
+from .models import Producto, Carrito, CarritoItem, LogAuditoria, Pedido, PedidoItem, ClienteDistribuidor
+from django.db.models import Count, Q
 
 
 def api_login(request):
@@ -36,25 +37,41 @@ def log_out(request):
 
 def iniciar_pago(request):
     print("[iniciar_pago] INICIO")
-    # Obtener productos desde el carrito (usando sesión o cookie)
-    carrito = request.session.get("carrito", [])
-    print(f"[iniciar_pago] Carrito en sesión: {carrito}")
-
-    # Si el carrito de sesión está vacío, intentar leer desde la cookie
-    if not carrito:
+    carrito = []
+    if request.user.is_authenticated:
+        # Usuario autenticado: obtener desde modelo
+        try:
+            carrito_obj = Carrito.objects.get(usuario=request.user)
+            from .models import ClienteDistribuidor
+            es_distribuidor = ClienteDistribuidor.objects.filter(email=request.user.email, tipo='distribuidor', activo=True).exists()
+            es_superuser = request.user.is_superuser
+            for item in carrito_obj.items.select_related('producto').all():
+                # Usar precio mayorista si corresponde
+                precio = item.producto.precio_mayorista if (es_distribuidor or es_superuser) else item.producto.precio
+                carrito.append({
+                    'id': item.producto.id,
+                    'nombre': item.producto.nombre,
+                    'precio': precio,
+                    'cantidad': item.cantidad,
+                })
+        except Carrito.DoesNotExist:
+            carrito = []
+    else:
+        # Usuario anónimo: obtener desde cookie
         carrito_cookie = request.COOKIES.get('carrito')
         print(f"[iniciar_pago] Carrito en cookie: {carrito_cookie}")
         if carrito_cookie:
             try:
                 carrito_data = json.loads(carrito_cookie)
-                carrito = []
                 for item in carrito_data.values():
                     try:
                         producto = Producto.objects.get(pk=item['producto_id'])
+                        usar_mayorista = item.get('mayorista', False)
+                        precio = producto.precio_mayorista if usar_mayorista else producto.precio
                         carrito.append({
                             'id': producto.id,
                             'nombre': producto.nombre,
-                            'precio': producto.precio,
+                            'precio': precio,
                             'cantidad': item['cantidad'],
                         })
                     except Producto.DoesNotExist:
@@ -128,7 +145,27 @@ def confirmar_pago(request):
         print(f"[confirmar_pago] Respuesta de Transbank: {response}")
         if response['status'] == 'AUTHORIZED':
             cart = get_or_create_cart(request)
-            if cart:
+            # --- CREAR PEDIDO ---
+            if cart and request.user.is_authenticated:
+                from .models import Pedido, PedidoItem
+                from .models import ClienteDistribuidor
+                es_distribuidor = ClienteDistribuidor.objects.filter(email=request.user.email, tipo='distribuidor', activo=True).exists()
+                es_superuser = request.user.is_superuser
+                pedido = Pedido.objects.create(
+                    cliente=request.user,
+                    tipo='pedido',
+                    estado='pagado',
+                    total=cart.total(),
+                    observaciones='Pedido generado automáticamente tras pago Webpay.'
+                )
+                for item in cart.items.select_related('producto').all():
+                    precio_unitario = item.producto.precio_mayorista if (es_distribuidor or es_superuser) else item.producto.precio
+                    PedidoItem.objects.create(
+                        pedido=pedido,
+                        producto=item.producto,
+                        cantidad=item.cantidad,
+                        precio_unitario=precio_unitario
+                    )
                 cart.items.all().delete()
             messages.success(request, "Pago exitoso.")
             return redirect('pago_exito')
@@ -152,10 +189,13 @@ def agregar_al_carrito(request):
     data = json.loads(request.body)
     producto_id = data.get('producto_id')
     cantidad = int(data.get('cantidad', 1))
+    usar_mayorista = data.get('mayorista', False)
     try:
         producto = Producto.objects.get(pk=producto_id)
     except Producto.DoesNotExist:
         return JsonResponse({"status": "error", "msg": "Producto no existe"})
+    # Determinar precio a usar
+    precio_a_usar = producto.precio_mayorista if usar_mayorista else producto.precio
     if request.user.is_authenticated:
         carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
         item, created = CarritoItem.objects.get_or_create(carrito=carrito, producto=producto)
@@ -165,17 +205,22 @@ def agregar_al_carrito(request):
             item.cantidad = cantidad
         item.save()
         carrito_items = carrito.items.select_related('producto').all()
-        carrito_total = carrito.total()
-        cart_count = sum(i.cantidad for i in carrito_items)
+        carrito_total = 0
+        cart_count = 0
         productos = []
         for item in carrito_items:
+            # Si el producto fue agregado como mayorista, usar ese precio
+            precio_item = producto.precio_mayorista if usar_mayorista else item.producto.precio
+            subtotal = precio_item * item.cantidad
+            carrito_total += subtotal
+            cart_count += item.cantidad
             productos.append({
                 "id": item.producto.id,
                 "nombre": item.producto.nombre,
-                "precio": item.producto.precio,
+                "precio": precio_item,
                 "cantidad": item.cantidad,
                 "imagen": item.producto.imagen.url if item.producto.imagen else "",
-                "subtotal": item.subtotal(),
+                "subtotal": subtotal,
             })
         return JsonResponse({
             "status": "ok",
@@ -192,7 +237,7 @@ def agregar_al_carrito(request):
         if str(producto_id) in carrito_data:
             carrito_data[str(producto_id)]['cantidad'] += cantidad
         else:
-            carrito_data[str(producto_id)] = {'producto_id': producto_id, 'cantidad': cantidad}
+            carrito_data[str(producto_id)] = {'producto_id': producto_id, 'cantidad': cantidad, 'mayorista': usar_mayorista}
         carrito_items = []
         carrito_total = 0
         cart_count = 0
@@ -200,7 +245,8 @@ def agregar_al_carrito(request):
         for item in carrito_data.values():
             try:
                 p = Producto.objects.get(pk=item['producto_id'])
-                subtotal = p.precio * item['cantidad']
+                precio_item = p.precio_mayorista if item.get('mayorista') else p.precio
+                subtotal = precio_item * item['cantidad']
                 carrito_items.append({
                     'producto': p,
                     'cantidad': item['cantidad'],
@@ -211,7 +257,7 @@ def agregar_al_carrito(request):
                 productos.append({
                     "id": p.id,
                     "nombre": p.nombre,
-                    "precio": p.precio,
+                    "precio": precio_item,
                     "cantidad": item['cantidad'],
                     "imagen": p.imagen.url if p.imagen else "",
                     "subtotal": subtotal,
@@ -329,12 +375,23 @@ def actualizar_cantidad_carrito(request):
             item = CarritoItem.objects.get(carrito__usuario=request.user, producto_id=producto_id)
             item.cantidad = cantidad
             item.save()
-            subtotal = item.subtotal()
+            # Detectar si el usuario es distribuidor activo o superuser
+            from api.models import ClienteDistribuidor
+            es_distribuidor = ClienteDistribuidor.objects.filter(email=request.user.email, tipo='distribuidor', activo=True).exists()
+            es_superuser = request.user.is_superuser
+            precio_item = item.producto.precio_mayorista if (es_distribuidor or es_superuser) else item.producto.precio
+            subtotal = precio_item * item.cantidad
             carrito = item.carrito
-            total = carrito.total()
-            return JsonResponse({"status": "ok", "subtotal": subtotal, "total": total})
+            # Calcular total con lógica de mayorista
+            total = 0
+            for it in carrito.items.select_related('producto').all():
+                precio = it.producto.precio_mayorista if (es_distribuidor or es_superuser) else it.producto.precio
+                total += precio * it.cantidad
+            neto = round(total / 1.19)
+            iva = total - neto
+            return JsonResponse({"success": True, "subtotal": subtotal, "total": int(total), "iva": int(iva)})
         except CarritoItem.DoesNotExist:
-            return JsonResponse({"status": "error"})
+            return JsonResponse({"success": False})
     else:
         carrito = request.COOKIES.get('carrito')
         if carrito:
@@ -345,20 +402,26 @@ def actualizar_cantidad_carrito(request):
             carrito_data[str(producto_id)]['cantidad'] = cantidad
         try:
             producto = Producto.objects.get(pk=producto_id)
-            subtotal = producto.precio * cantidad
+            usar_mayorista = carrito_data.get(str(producto_id), {}).get('mayorista', False)
+            precio_item = producto.precio_mayorista if usar_mayorista else producto.precio
+            subtotal = precio_item * cantidad
         except Producto.DoesNotExist:
             subtotal = 0
         total = 0
         for item in carrito_data.values():
             try:
                 p = Producto.objects.get(pk=item['producto_id'])
-                total += p.precio * item['cantidad']
+                usar_mayorista = item.get('mayorista', False)
+                precio = p.precio_mayorista if usar_mayorista else p.precio
+                total += precio * item['cantidad']
             except Producto.DoesNotExist:
                 continue
-        response = JsonResponse({"status": "ok", "subtotal": subtotal, "total": total})
+        neto = round(total / 1.19)
+        iva = total - neto
+        response = JsonResponse({"success": True, "subtotal": subtotal, "total": int(total), "iva": int(iva)})
         response.set_cookie('carrito', json.dumps(carrito_data), max_age=60*60*24*7)
         return response
-    return JsonResponse({"status": "error"})
+    return JsonResponse({"success": False})
 
 @csrf_exempt
 def carrito_view(request):
@@ -439,24 +502,33 @@ def get_or_create_cart(request):
 
 @csrf_exempt
 def editar_producto(request):
-    """API para editar un producto desde el dashboard admin."""
+    """API para editar un producto desde el dashboard admin, incluyendo imagen."""
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
+        id = request.POST.get('id')
         nombre = request.POST.get('nombre')
-        codigo = request.POST.get('codigo')
         proveedor = request.POST.get('proveedor')
         precio = request.POST.get('precio')
         stock = request.POST.get('stock')
         estado = request.POST.get('estado')
+        imagen = request.FILES.get('imagen')
         try:
-            producto = Producto.objects.get(pk=producto_id)
+            if int(precio) <= 0:
+                return JsonResponse({'status': 'error', 'msg': 'El precio debe ser mayor a 0'})
+            producto = Producto.objects.get(pk=id)
             producto.nombre = nombre
             producto.proveedor = proveedor
             producto.precio = int(precio)
             producto.stock = int(stock)
             producto.estado = estado
+            if imagen:
+                # Validar formato
+                if not imagen.content_type in ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']:
+                    return JsonResponse({'status': 'error', 'msg': 'Formato de imagen no permitido'})
+                producto.imagen = imagen
             producto.save()
-            return JsonResponse({'status': 'ok'})
+            registrar_log(request.user.username if request.user.is_authenticated else None, 'editar', 'Producto', f'ID: {id}, Nombre: {nombre}, Precio: {precio}, Stock: {stock}, Estado: {estado}')
+            imagen_url = producto.imagen.url if producto.imagen else None
+            return JsonResponse({'status': 'ok', 'imagen_url': imagen_url})
         except Producto.DoesNotExist:
             return JsonResponse({'status': 'error', 'msg': 'Producto no encontrado'})
         except Exception as e:
@@ -483,11 +555,14 @@ def accion_masiva_producto(request):
 @require_POST
 def eliminar_producto(request):
     """API para eliminar un producto desde el dashboard admin."""
-    producto_id = request.POST.get('producto_id')
-    if not producto_id:
+    id = request.POST.get('id')
+    if not id:
         return JsonResponse({'status': 'error', 'msg': 'ID de producto requerido'})
     try:
-        producto = Producto.objects.get(pk=producto_id)
+        producto = Producto.objects.get(pk=id)
+        # Guardar detalles antes de eliminar
+        detalles = f"ID: {producto.id}, Nombre: {producto.nombre}, Precio: {producto.precio}"
+        registrar_log(request.user.username if request.user.is_authenticated else None, 'eliminar', 'Producto', detalles)
         producto.delete()
         return JsonResponse({'status': 'ok'})
     except Producto.DoesNotExist:
@@ -504,6 +579,8 @@ def crear_producto(request):
     precio = request.POST.get('precio')
     stock = request.POST.get('stock')
     estado = request.POST.get('estado') or 'inactivo'
+    descripcion = request.POST.get('descripcion')
+    imagen = request.FILES.get('imagen')
     if not (nombre  and precio and stock):
         return JsonResponse({'status': 'error', 'msg': 'Faltan campos obligatorios'})
     try:
@@ -511,21 +588,254 @@ def crear_producto(request):
             return JsonResponse({'status': 'error', 'msg': 'El precio debe ser mayor a 0'})
     except Exception:
         return JsonResponse({'status': 'error', 'msg': 'Precio inválido'})
-    # Verificar unicidad de código y nombre
     from .models import Producto
     if Producto.objects.filter(nombre=nombre).exists():
         return JsonResponse({'status': 'error', 'msg': 'Ya existe un producto con ese nombre'})
     try:
+        # Validar formato de imagen si se sube
+        if imagen and imagen.content_type not in ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']:
+            return JsonResponse({'status': 'error', 'msg': 'Formato de imagen no permitido'})
         producto = Producto.objects.create(
             nombre=nombre,
             proveedor=proveedor,
             precio=int(precio),
             stock=int(stock),
-            estado=estado
+            estado=estado,
+            descripcion=descripcion,
+            imagen=imagen if imagen else 'imgProductos/placeholder.png'
         )
+        registrar_log(request.user.username if request.user.is_authenticated else None, 'crear', 'Producto', f'Nombre: {nombre}, Precio: {precio}, Stock: {stock}, Estado: {estado}')
         return JsonResponse({'status': 'ok', 'id': producto.id})
     except Exception as e:
         return JsonResponse({'status': 'error', 'msg': str(e)})
+
+@csrf_exempt
+@require_POST
+def eliminar_masivo_producto(request):
+    """API para eliminar productos de forma masiva desde el dashboard admin."""
+    ids = request.POST.get('ids', '')
+    id_list = [int(i) for i in ids.split(',') if i.isdigit()]
+    if not id_list:
+        return JsonResponse({'status': 'error', 'msg': 'No se recibieron IDs válidos'})
+    try:
+        productos = Producto.objects.filter(id__in=id_list)
+        for producto in productos:
+            detalles = f"ID: {producto.id}, Nombre: {producto.nombre}, Precio: {producto.precio}"
+            registrar_log(request.user.username if request.user.is_authenticated else None, 'eliminar', 'Producto', detalles)
+        productos.delete()
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'msg': str(e)})
+
+@require_GET
+def api_logs(request):
+    """Devuelve logs de auditoría filtrados para el dashboard."""
+    usuario = request.GET.get('usuario', '').strip()
+    accion = request.GET.get('accion', '').strip()
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+    logs = LogAuditoria.objects.all()
+    if usuario:
+        logs = logs.filter(usuario__icontains=usuario)
+    if accion:
+        logs = logs.filter(accion=accion)
+    if fecha_desde:
+        logs = logs.filter(fecha_hora__date__gte=fecha_desde)
+    if fecha_hasta:
+        logs = logs.filter(fecha_hora__date__lte=fecha_hasta)
+    logs = logs.order_by('-fecha_hora')[:200]  # Limitar a 200 más recientes
+    data = [{
+        'fecha_hora': l.fecha_hora.strftime('%Y-%m-%d %H:%M:%S'),
+        'usuario': l.usuario,
+        'accion': l.accion,
+        'modelo': l.modelo,
+        'detalles': l.detalles,
+    } for l in logs]
+    return JsonResponse({'logs': data})
+
+def registrar_log(usuario, accion, modelo, detalles=None):
+    LogAuditoria.objects.create(
+        usuario=str(usuario)[:150] if usuario else '',
+        accion=accion,
+        modelo=modelo,
+        detalles=detalles or ''
+    )
+
+@require_GET
+def api_pedidos(request):
+    """Devuelve lista de pedidos/ventas con filtros."""
+    cliente = request.GET.get('cliente', '').strip()
+    estado = request.GET.get('estado', '').strip()
+    fecha_desde = request.GET.get('fecha_desde', '').strip()
+    fecha_hasta = request.GET.get('fecha_hasta', '').strip()
+    pedidos = Pedido.objects.all()
+    if cliente:
+        pedidos = pedidos.filter(cliente__icontains=cliente)
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+    if fecha_desde:
+        pedidos = pedidos.filter(fecha__date__gte=fecha_desde)
+    if fecha_hasta:
+        pedidos = pedidos.filter(fecha__date__lte=fecha_hasta)
+    pedidos = pedidos.order_by('-fecha')[:200]
+    data = []
+    for p in pedidos:
+        items = list(p.items.values('producto__nombre', 'cantidad', 'precio_unitario'))
+        data.append({
+            'id': p.id,
+            'fecha': p.fecha.strftime('%Y-%m-%d %H:%M'),
+            'cliente': p.cliente,
+            'tipo': p.get_tipo_display(),
+            'estado': p.get_estado_display(),
+            'total': float(p.total),
+            'items': items,
+        })
+    return JsonResponse({'pedidos': data})
+
+@csrf_exempt
+@require_POST
+def api_pedido_nuevo(request):
+    """Crea un nuevo pedido o venta."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        pedido = Pedido.objects.create(
+            cliente=data['cliente'],
+            tipo=data.get('tipo', 'pedido'),
+            estado=data.get('estado', 'pendiente'),
+            total=data.get('total', 0),
+            observaciones=data.get('observaciones', '')
+        )
+        for item in data['items']:
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto_id=item['producto_id'],
+                cantidad=item['cantidad'],
+                precio_unitario=item['precio_unitario']
+            )
+        return JsonResponse({'status': 'ok', 'id': pedido.id})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'msg': str(e)})
+
+@csrf_exempt
+@require_GET
+def api_clientes_distribuidores(request):
+    """Devuelve lista de clientes y distribuidores con filtros opcionales."""
+    tipo = request.GET.get('tipo', '').strip()
+    nombre = request.GET.get('nombre', '').strip()
+    activos = request.GET.get('activos', '1')
+    qs = ClienteDistribuidor.objects.all()
+    if tipo in ['cliente', 'distribuidor']:
+        qs = qs.filter(tipo=tipo)
+    if nombre:
+        qs = qs.filter(nombre__icontains=nombre)
+    if activos == '1':
+        qs = qs.filter(activo=True)
+    qs = qs.order_by('-fecha_creacion')[:200]
+    data = []
+    for c in qs:
+        data.append({
+            'id': c.id,
+            'tipo': c.get_tipo_display(),
+            'nombre': c.nombre,
+            'rut': c.rut,
+            'email': c.email,
+            'telefono': c.telefono,
+            'direccion': c.direccion,
+            'fecha_creacion': c.fecha_creacion.strftime('%Y-%m-%d'),
+            'activo': c.activo,
+        })
+    return JsonResponse({'clientes': data})
+
+@csrf_exempt
+@require_POST
+def api_nuevo_cliente_distribuidor(request):
+    """Crea un nuevo cliente o distribuidor. Si es distribuidor y se solicita, crea usuario Django asociado."""
+    data = json.loads(request.body)
+    tipo = data.get('tipo', 'cliente')
+    nombre = data.get('nombre', '').strip()
+    rut = data.get('rut', '').strip()
+    email = data.get('email', '').strip()
+    telefono = data.get('telefono', '').strip()
+    direccion = data.get('direccion', '').strip()
+    crear_usuario = data.get('crear_usuario_distribuidor', False)
+    password = data.get('password_distribuidor', '').strip()
+    if not nombre:
+        return JsonResponse({'status': 'error', 'msg': 'El nombre es obligatorio'})
+    # Crear ClienteDistribuidor
+    obj = ClienteDistribuidor.objects.create(
+        tipo=tipo,
+        nombre=nombre,
+        rut=rut,
+        email=email,
+        telefono=telefono,
+        direccion=direccion,
+        activo=True
+    )
+    usuario_creado = None
+    usuario_error = None
+    if tipo == 'distribuidor' and crear_usuario and email and password:
+        from .models import Usuario
+        if Usuario.objects.filter(email=email).exists():
+            usuario_error = 'Ya existe un usuario con ese email.'
+        else:
+            try:
+                usuario = Usuario.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password,
+                    rut=rut or None,
+                    telefono=telefono or None,
+                    direccion=direccion or None,
+                )
+                usuario.first_name = nombre
+                usuario.save()
+                usuario_creado = usuario.username
+            except Exception as e:
+                usuario_error = str(e)
+    resp = {'status': 'ok', 'id': obj.id}
+    if usuario_creado:
+        resp['usuario_creado'] = usuario_creado
+        resp['password'] = password
+    if usuario_error:
+        resp['usuario_error'] = usuario_error
+    return JsonResponse(resp)
+
+@csrf_exempt
+@require_GET
+def api_dashboard_resumen(request):
+    total_productos = Producto.objects.count()
+    total_pedidos = Pedido.objects.count()
+    total_clientes = ClienteDistribuidor.objects.filter(tipo='cliente').count()
+    stock_bajo = Producto.objects.filter(stock__lt=10).count()
+    return JsonResponse({
+        'total_productos': total_productos,
+        'total_pedidos': total_pedidos,
+        'total_clientes': total_clientes,
+        'stock_bajo': stock_bajo,
+    })
+
+@csrf_exempt
+@require_POST
+def terminar_pedido(request, pedido_id):
+    from .models import Pedido
+    try:
+        pedido = Pedido.objects.get(id=pedido_id)
+        pedido.estado = 'entregado'
+        pedido.save()
+        return JsonResponse({'status': 'ok'})
+    except Pedido.DoesNotExist:
+        return JsonResponse({'status': 'error', 'msg': 'Pedido no encontrado'})
+
+@csrf_exempt
+@require_POST
+def eliminar_pedido(request, pedido_id):
+    from .models import Pedido
+    try:
+        pedido = Pedido.objects.get(id=pedido_id)
+        pedido.delete()
+        return JsonResponse({'status': 'ok'})
+    except Pedido.DoesNotExist:
+        return JsonResponse({'status': 'error', 'msg': 'Pedido no encontrado'})
 
 
 

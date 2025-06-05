@@ -2119,3 +2119,6 @@ textarea.input {
     margin-top: 10px;
   }
 }
+
+/* --- Ensure Bootstrap modal only visible when active --- */
+.modal-backdrop { z-index: 1040 !important; }

@@ -22,7 +22,7 @@ AUTH_USER_MODEL = 'api.Usuario'
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_4adan$i&nbx&+6q@gk2eo-goija6#9p)g5_p@#zr%yzmqkc(+'
+SECRET_KEY = 'django-insecure-_4adan$s&nbx&+6q@gk2eo-goija6#9p)g5_p@#zr%yzmqkc(+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -119,6 +119,7 @@ USE_L10N = True
 USE_TZ = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 TRANSBANK_API_URL = "https://webpay3gint.transbank.cl"
 TRANSBANK_COMMERCE_CODE = "597055555532"  

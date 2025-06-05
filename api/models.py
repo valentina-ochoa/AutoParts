@@ -22,6 +22,7 @@ class Producto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")
     precio = models.IntegerField(default=999999999, verbose_name="Precio Base (CLP)")  # Valor por defecto de 999999999 CLP
+    precio_mayorista = models.IntegerField(default=999999999, verbose_name="Precio Mayorista (CLP)")  # Valor por defecto de 999999999 CLP
     etiquetas = models.CharField(max_length=255, null=True, blank=True, verbose_name="Etiquetas del Producto")
 
     estado = models.CharField(max_length=20, default='activo', choices=[
@@ -36,6 +37,9 @@ class Producto(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.nombre)
+        # Calcular precio mayorista automáticamente
+        if self.precio is not None:
+            self.precio_mayorista = int(self.precio - (self.precio * 0.25))
         super().save(*args, **kwargs)
 
     class Meta:
@@ -76,3 +80,57 @@ class CarritoItem(models.Model):
 
     def subtotal(self):
         return self.cantidad * self.producto.precio
+
+class LogAuditoria(models.Model):
+    fecha_hora = models.DateTimeField(auto_now_add=True)
+    usuario = models.CharField(max_length=150, null=True, blank=True)
+    accion = models.CharField(max_length=32)
+    modelo = models.CharField(max_length=64, null=True, blank=True)
+    detalles = models.TextField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Log de Auditoría"
+        verbose_name_plural = "Logs de Auditoría"
+        ordering = ['-fecha_hora']
+
+    def __str__(self):
+        return f"{self.fecha_hora} - {self.usuario} - {self.accion}"
+
+class Pedido(models.Model):
+    cliente = models.CharField(max_length=150)
+    tipo = models.CharField(max_length=10, choices=[('pedido', 'Pedido'), ('venta', 'Venta')], default='pedido')
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('procesado', 'Procesado'), ('entregado', 'Entregado'), ('cancelado', 'Cancelado')], default='pendiente')
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    observaciones = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Pedido #{self.id} - {self.cliente} - {self.fecha.strftime('%Y-%m-%d')}"
+
+class PedidoItem(models.Model):
+    pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    cantidad = models.PositiveIntegerField(default=1)
+    precio_unitario = models.DecimalField(max_digits=12, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre} (Pedido #{self.pedido.id})"
+
+class ClienteDistribuidor(models.Model):
+    tipo = models.CharField(max_length=20, choices=[('cliente', 'Cliente'), ('distribuidor', 'Distribuidor')], default='cliente')
+    nombre = models.CharField(max_length=150)
+    rut = models.CharField(max_length=20, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    telefono = models.CharField(max_length=30, null=True, blank=True)
+    direccion = models.CharField(max_length=255, null=True, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Cliente o Distribuidor"
+        verbose_name_plural = "Clientes y Distribuidores"
+        ordering = ['-fecha_creacion']
+
+    def __str__(self):
+        return f"{self.nombre} ({self.tipo})"

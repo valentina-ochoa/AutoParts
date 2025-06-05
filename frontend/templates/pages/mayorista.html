@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block content %}
+<div class="section" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="container">
+        <div class="row">
+            <div id="store" class="col-md-12">
+                <h3 class="mb-4">Catálogo Mayorista</h3>
+                {% if productos.exists %}
+                <div class="row">
+                    {% for producto in productos %}
+                    <div class="col-md-4 col-xs-6">
+                        <div class="product">
+                            <a href="{% url 'product_detail' producto.id %}" class="product-clickable-area">
+                                <div class="product-img">
+                                    <img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/placeholder.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
+                                </div>
+                                <div class="product-body">
+                                    <p class="product-category">{{ producto.categoria|default:'-' }}</p>
+                                    <h3 class="product-name">{{ producto.nombre }}</h3>
+                                    <h4 class="product-price">${{ producto.precio_mayorista|floatformat:0 }}</h4>
+                                </div>
+                            </a>
+                            <div class="add-to-cart">
+                                <input type="number" name="cantidad" min="1" value="1" style="width:60px; text-align:center; margin-right:8px;">
+                                <button class="add-to-cart-btn" data-id="{{ producto.id }}"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <div class="alert alert-warning">No hay productos mayoristas disponibles.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

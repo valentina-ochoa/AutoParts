@@ -1,34 +1,45 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container my-4" style="margin-top: 4rem; margin-bottom: 4rem;">
     <h2>Tu Carrito</h2>
 
     {% if items %}
-        <table class="table table-bordered mt-3">
+        <table class="table table-bordered mt-3" id="tablaCarrito">
             <thead class="table-dark">
                 <tr>
+                    <th>Foto</th>
                     <th>Producto</th>
                     <th>Precio</th>
                     <th>Cantidad</th>
-                    
+                    <th>Eliminar</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in items %}
-                    <tr>
+                    <tr data-producto-id="{{ item.producto.id }}">
+                        <td style="text-align:center; vertical-align:middle;">
+                            {% if item.producto.imagen %}
+                                <img src="{{ item.producto.imagen.url }}" alt="Imagen producto" style="max-width:48px; max-height:48px; border-radius:6px; border:1px solid #ddd; background:#fafafa;">
+                            {% else %}
+                                <img src="{% static 'imgProductos/placeholder.png' %}" alt="Sin imagen" style="max-width:48px; max-height:48px; border-radius:6px; border:1px solid #ddd; background:#fafafa;">
+                            {% endif %}
+                        </td>
                         <td>{{ item.producto.nombre }}</td>
-                        <td>${{ item.producto.precio }}</td>
-                        <td>{{ item.cantidad }}</td>
+                        <td class="precio-unitario">${{ item.precio_unitario|floatformat:0 }}</td>
+                        <td>
+                            <input type="number" name="cantidad_{{ item.producto.id }}" value="{{ item.cantidad }}" min="1" class="form-control input-cantidad" style="width:80px; display:inline-block;">
+                        </td>
+                        <td style="text-align:center;">
+                            <button class="btn btn-danger btn-sm btn-eliminar-item" data-id="{{ item.producto.id }}" title="Eliminar"><i class="fa fa-trash"></i></button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-        <p><strong>Total CLP:</strong> ${{ total }}</p>
-        
-
-        
+        <p><strong>IVA (19%):</strong> $<span id="ivaCarrito">{{ iva|floatformat:0 }}</span></p>
+        <p><strong>Total CLP:</strong> $<span id="totalCarrito">{{ total|floatformat:0 }}</span></p>
         <div class="mt-4">
             <form method="POST" action="/api/pago/iniciar/" style="display:inline;">
                 {% csrf_token %}
@@ -36,6 +47,72 @@
             </form>
             <a href="{% url 'limpiar_carrito' %}" class="btn btn-warning"> Limpiar Carrito</a>
         </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.input-cantidad').forEach(function(input) {
+                input.addEventListener('change', function() {
+                    var tr = input.closest('tr');
+                    var productoId = tr.getAttribute('data-producto-id');
+                    var cantidad = input.value;
+                    fetch('{% url "actualizar_cantidad_carrito" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({ producto_id: productoId, cantidad: cantidad })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            // Actualizar totales en tiempo real
+                            document.getElementById('ivaCarrito').textContent = data.iva;
+                            document.getElementById('totalCarrito').textContent = data.total;
+                            // Mostrar feedback visual
+                            tr.querySelector('.label-success').style.display = 'inline-block';
+                            setTimeout(function() {
+                                tr.querySelector('.label-success').style.display = 'none';
+                            }, 1200);
+                        } else {
+                            alert('Error al actualizar cantidad.');
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('.btn-eliminar-item').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var productoId = this.getAttribute('data-id');
+                    if (!confirm('¿Seguro que deseas eliminar este producto del carrito?')) return;
+                    fetch('{% url "eliminar_del_carrito" 0 %}'.replace('0', productoId), {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.status === 'ok') {
+                            // Eliminar la fila de la tabla
+                            var row = document.querySelector('tr[data-producto-id="' + productoId + '"]');
+                            if(row) row.remove();
+                            // Actualizar totales
+                            document.getElementById('ivaCarrito').textContent = data.cart_total ? Math.round(data.cart_total - (data.cart_total/1.19)) : 0;
+                            document.getElementById('totalCarrito').textContent = data.cart_total || 0;
+                            // Si el carrito queda vacío, mostrar mensaje
+                            if(document.querySelectorAll('#tablaCarrito tbody tr').length === 0) {
+                                document.getElementById('tablaCarrito').style.display = 'none';
+                                document.querySelector('.mt-4').insertAdjacentHTML('beforebegin', '<div class="alert alert-warning mt-4"><p>Tu carrito está vacío.</p></div>');
+                            }
+                        } else {
+                            alert('Error al eliminar el producto.');
+                        }
+                    });
+                });
+            });
+        });
+        </script>
     {% else %}
         <div class="alert alert-warning mt-4">
             <p>Tu carrito está vacío.</p>

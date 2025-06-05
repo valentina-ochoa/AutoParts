@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block content %}
+		<!-- SECTION -->
+		<div class="section" style="margin-top: 4rem; margin-bottom: 4rem;">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<!-- STORE (removed ASIDE) -->
+					<div id="store" class="col-md-12">
+						<h3 class="mb-4">Resultados de búsqueda{% if query %} para <span style="color:#D10024">"{{ query }}"</span>{% endif %}</h3>
+						{% if productos.exists %}
+						<div class="row">
+							{% for producto in productos %}
+							<div class="col-md-4 col-xs-6">
+								<div class="product">
+									<a href="{% url 'product_detail' producto.id %}" class="product-clickable-area">
+										<div class="product-img">
+											<img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/placeholder.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
+										</div>
+										<div class="product-body">
+											<p class="product-category">{{ producto.categoria|default:'-' }}</p>
+											<h3 class="product-name">{{ producto.nombre }}</h3>
+											<h4 class="product-price">${{ producto.precio|floatformat:0 }}</h4>
+										</div>
+									</a>
+									<div class="add-to-cart">
+										<button class="add-to-cart-btn" data-id="{{ producto.id }}"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
+									</div>
+								</div>
+							</div>
+							{% endfor %}
+						</div>
+						{% else %}
+							<div class="alert alert-warning">No se encontraron productos para tu búsqueda.</div>
+						{% endif %}
+					</div>
+					<!-- /STORE -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+{% endblock %}

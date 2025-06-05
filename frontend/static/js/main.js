@@ -165,4 +165,16 @@
 		});
 	}
 
+	// ================= BUSCADOR NAVBAR REDIRECCIÓN =================
+	$(document).ready(function() {
+	    $('#navbarSearchForm').on('submit', function(e) {
+	        var q = $('#navbarSearchInput').val().trim();
+	        if(q.length === 0) return;
+	        // Redirigir a la vista de búsqueda de productos
+	        var url = '/tienda/?q=' + encodeURIComponent(q);
+	        window.location.href = url;
+	        // No usar e.preventDefault() para permitir la navegación normal si JS falla
+	    });
+	});
+
 })(jQuery);

@@ -18,5 +18,14 @@ urlpatterns = [
     path('producto/accion_masiva/', views.accion_masiva_producto, name='accion_masiva_producto'),
     path('producto/eliminar/', views.eliminar_producto, name='eliminar_producto'),
     path('producto/crear/', views.crear_producto, name='crear_producto'),
+    path('producto/eliminar_masivo/', views.eliminar_masivo_producto, name='eliminar_masivo_producto'),
+    path('logs/', views.api_logs, name='api_logs'),
+    path('pedidos/', views.api_pedidos, name='api_pedidos'),
+    path('pedido/nuevo/', views.api_pedido_nuevo, name='api_pedido_nuevo'),
+    path('clientes/', views.api_clientes_distribuidores, name='api_clientes_distribuidores'),
+    path('cliente/nuevo/', views.api_nuevo_cliente_distribuidor, name='api_nuevo_cliente_distribuidor'),
+    path('dashboard-resumen/', views.api_dashboard_resumen, name='api_dashboard_resumen'),
+    path('pedido/terminar/<int:pedido_id>/', views.terminar_pedido, name='terminar_pedido'),
+    path('pedido/eliminar/<int:pedido_id>/', views.eliminar_pedido, name='eliminar_pedido'),
 
 ]

@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 
 {% load static %}
+{% load distribuidor_tags %}
 {% block content %}
 <!-- NAVIGATION -->
 <nav id="navegador">
@@ -11,7 +12,6 @@
 			<!-- NAV -->
 			<ul class="main-nav nav navbar-nav">
 				<li class="active"><a href="#">Inicio</a></li>
-				<li><a href="#">Categorías</a></li>
 			</ul>
 			<!-- /NAV -->
 		</div>
@@ -35,570 +35,133 @@
 	</div>
 	<!-- /container -->
 </div>
-<!-- /BREADCRUMB -->1
-		<!-- SECTION -->
-		<div class="seccion">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<!-- shop -->
-					<div class="col-md-4 col-xs-6">
-						<div class="shop">
-							<div class="shop-img">
-								<img src="{% static 'img/radiador.png' %}" alt="" height="300">
-							</div>
-							<div class="shop-body">
-								<h3>Radiador</h3>
-								<a href="#" class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></a>
-							</div>
+<!-- /BREADCRUMB -->
+<!-- SECTION -->
+<div class="seccion">
+	<!-- container -->
+	<div class="container">
+		<!-- row -->
+		<div class="row">
+			<!-- shop -->
+			<div class="col-md-4 col-xs-6">
+				<div class="shop">
+					<a href="/tienda/?q=" style="display:block;">
+						<div class="shop-img">
+							<img src="{% static 'img/radiador.png' %}" alt="Radiador" height="300">
 						</div>
-					</div>
-					<!-- /shop -->
-
-					<!-- shop -->
-					<div class="col-md-4 col-xs-6">
-						<div class="shop">
-							<div class="shop-img">
-								<img src="{% static 'img/antena.png' %}" alt="" height="300">
-							</div>
-							<div class="shop-body">
-								<h3>Antena</h3>
-								<a href="#" class="cta-btn">Comprar Ahora <i class="fa fa-arrow-circle-right"></i></a>
-							</div>
+						<div class="shop-body">
+							<h3>Radiador</h3>
+							<span class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></span>
 						</div>
-					</div>
-					<!-- /shop -->
-
-					<!-- shop -->
-					<div class="col-md-4 col-xs-6">
-						<div class="shop">
-							<div class="shop-img">
-								<img src="{% static 'img/tapa.webp' %}" alt="" height="300">
-							</div>
-							<div class="shop-body">
-								<h3>Tapa Combustible</h3>
-								<a href="#" class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></a>
-							</div>
-						</div>
-					</div>
-					<!-- /shop -->
+					</a>
 				</div>
-				<!-- /row -->
 			</div>
-			<!-- /container -->
-		</div>
-		<!-- /SECTION -->
+			<!-- /shop -->
 
-		<!-- SECTION -->
-		<div class="seccion">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-
-					<!-- section title -->
-					<div class="col-md-12">
-						<div class="titulo-seccion">
-							<h3 class="titulo">Productos Nuevos</h3>
+			<!-- shop -->
+			<div class="col-md-4 col-xs-6">
+				<div class="shop">
+					<a href="/tienda/?q=" style="display:block;">
+						<div class="shop-img">
+							<img src="{% static 'img/antena.png' %}" alt="Antena" height="300">
 						</div>
-					</div>
-					<!-- /section title -->
-
-					<!-- Products tab & slick -->
-					<div class="col-md-12">
-						<div class="row">
-							<div class="products-tabs">
-								<!-- tab -->
-								<div id="tab1" class="tab-pane active">
-									<div class="products-slick" data-nav="#slick-nav-1">
-										{% for producto in productos %}
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="" alt="img">
-												<div class="product-label">
-													<span class="new">Nuevo</span>
-												</div>
-											</div>
-											<div class="product-body">
-												<p class="product-category">{{ producto.etiquetas }}</p>
-												<h3 class="product-name"><a href="#">{{ producto.nombre }}</a></h3>
-												<h4 class="product-price">${{ producto.precio }}</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn" data-id="{{ producto.id }}">
-													<i class="fa fa-shopping-cart"></i>Agregar al carro
-												</button>
-											</div>
-										</div>
-										<!-- /product -->
-										{% endfor %}
-									</div>
-									<div id="slick-nav-1" class="products-slick-nav"></div>
-								</div>
-								<!-- /tab -->
-							</div>
+						<div class="shop-body">
+							<h3>Antena</h3>
+							<span class="cta-btn">Comprar Ahora <i class="fa fa-arrow-circle-right"></i></span>
 						</div>
-					</div>
-					<!-- Products tab & slick -->
+					</a>
 				</div>
-				<!-- /row -->
 			</div>
-			<!-- /container -->
-		</div>
-		<!-- /SECTION -->
+			<!-- /shop -->
 
-		<!-- SECTION -->
-		<div class="seccion">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-
-					<!-- section title -->
-					<div class="col-md-12">
-						<div class="titulo-seccion">
-							<h3 class="title">Top Ventas</h3>
-							<a href="#" class="btn btn-sm btn-primary ms-3">Catálogo Mayorista</a>
+			<!-- shop -->
+			<div class="col-md-4 col-xs-6">
+				<div class="shop">
+					<a href="/tienda/?q=" style="display:block;">
+						<div class="shop-img">
+							<img src="{% static 'img/tapa.webp' %}" alt="Tapa Combustible" height="300">
 						</div>
-					</div>
-					<!-- /section title -->
-
-					<!-- Products tab & slick -->
-					<div class="col-md-12">
-						<div class="row">
-							<div class="products-tabs">
-								<!-- tab -->
-								<div id="tab2" class="tab-pane fade in active">
-									<div class="products-slick" data-nav="#slick-nav-2">
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/radio.webp' %}" alt="">
-											</div>
-											<div class="product-body">
-												<p class="product-category">Electrónica Automotriz</p>
-												<h3 class="product-name"><a href="#">Radio Bluethooth</a></h3>
-												<h4 class="product-price">$90.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/cubrevolante.webp' %}" alt="">
-											</div>
-											<div class="product-body">
-												<p class="product-category">Accesorios</p>
-												<h3 class="product-name"><a href="#">Cubre volante</a></h3>
-												<h4 class="product-price">$10.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star-o"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/plumillas.webp' %}" alt="">
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Plumillas</a></h3>
-												<h4 class="product-price">$4.000</h4>
-												<div class="product-rating">
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Sensor de oxígeno</a></h3>
-												<h4 class="product-price">$40.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-
-										<!-- product -->
-										<div class="product">
-											<div class="product-img">
-												<img src="{% static 'img/tapa.webp' %}" alt="" height="263">
-											</div>
-											<div class="product-body">
-												<p class="product-category">Repuestos</p>
-												<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-												<h4 class="product-price">$6.000</h4>
-												<div class="product-rating">
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-													<i class="fa fa-star"></i>
-												</div>
-											</div>
-											<div class="add-to-cart">
-												<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>Agregar al carro</button>
-											</div>
-										</div>
-										<!-- /product -->
-									</div>
-									<div id="slick-nav-2" class="products-slick-nav"></div>
-								</div>
-								<!-- /tab -->
-							</div>
+						<div class="shop-body">
+							<h3>Tapa Combustible</h3>
+							<span class="cta-btn">Comprar Ahora<i class="fa fa-arrow-circle-right"></i></span>
 						</div>
-					</div>
-					<!-- /Products tab & slick -->
+					</a>
 				</div>
-				<!-- /row -->
 			</div>
-			<!-- /container -->
+			<!-- /shop -->
 		</div>
-		<!-- /SECTION -->
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+</div>
+<!-- /SECTION -->
 
-		<!-- SECTION -->
-		<div class="seccion">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-4 col-xs-6">
-						<div class="titulo-seccion">
-							<h4 class="title d-inline">Top Ventas</h4>
-                             
-
-							<div class="section-nav">
-								<div id="slick-nav-3" class="products-slick-nav"></div>
-							</div>
-						</div>
-
-						<div class="products-widget-slick" data-nav="#slick-nav-3">
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/radio.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Electrónica Automotriz</p>
-										<h3 class="product-name"><a href="#">Radio Bluethooth</a></h3>
-										<h4 class="product-price">$90.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/tapa.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-										<h4 class="product-price">$6.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Sensor de Oxígeno</a></h3>
-										<h4 class="product-price">$40.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/plumillas.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Plumillas</h3>
-										<h4 class="product-price">$4.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Accesorios</p>
-										<h3 class="product-name"><a href="#">Cubre Volante</a></h3>
-										<h4 class="product-price">$10.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/tapa.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-										<h4 class="product-price">$6.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-4 col-xs-6">
-						<div class="titulo-seccion">
-							<h4 class="title">Top Ventas</h4>
-							<div class="section-nav">
-								<div id="slick-nav-4" class="products-slick-nav"></div>
-							</div>
-						</div>
-
-						<div class="products-widget-slick" data-nav="#slick-nav-4">
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/plumillas.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">plumillas</a></h3>
-										<h4 class="product-price">$4.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/tapa.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-										<h4 class="product-price">$6.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Sensor de oxígeno</a></h3>
-										<h4 class="product-price">$40.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/radio.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Electrónica Automotriz</p>
-										<h3 class="product-name"><a href="#">Radio Bluethooth</a></h3>
-										<h4 class="product-price">$90.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Accesorios</p>
-										<h3 class="product-name"><a href="#">Cubre Volante</a></h3>
-										<h4 class="product-price">$10.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Sensor de Oxígeno</a></h3>
-										<h4 class="product-price">$40.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-						</div>
-					</div>
-
-					<div class="clearfix visible-sm visible-xs"></div>
-
-					<div class="col-md-4 col-xs-6">
-						<div class="titulo-seccion">
-							<h4 class="title">Top Ventas</h4>
-							<div class="section-nav">
-								<div id="slick-nav-5" class="products-slick-nav"></div>
-							</div>
-						</div>
-
-						<div class="products-widget-slick" data-nav="#slick-nav-5">
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/sensoroxigeno.jpg' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Sensor de Oxígeno</a></h3>
-										<h4 class="product-price">$40.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/radio.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Electrónica Automotriz</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">$90.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/tapa.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-										<h4 class="product-price">$6.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-
-							<div>
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/cubrevolante.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Accesorios</p>
-										<h3 class="product-name"><a href="#">Cubre Volante</a></h3>
-										<h4 class="product-price">$10.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/plumillas.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Plumillas</a></h3>
-										<h4 class="product-price">$4.000</h4>
-									</div>
-								</div>
-								<!-- /product widget -->
-
-								<!-- product widget -->
-								<div class="product-widget">
-									<div class="product-img">
-										<img src="{% static 'img/tapa.webp' %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-category">Repuestos</p>
-										<h3 class="product-name"><a href="#">Tapa Combustible</a></h3>
-										<h4 class="product-price">$6.000</h4>
-									</div>
-								</div>
-								<!-- product widget -->
-							</div>
-						</div>
-					</div>
-
+<!-- SECTION -->
+<div class="seccion">
+	<!-- container -->
+	<div class="container">
+		<!-- row -->
+		<div class="row">
+			<div class="col-md-12">
+				<div class="titulo-seccion">
+					<h3 class="titulo">Productos Nuevos</h3>
 				</div>
-				<!-- /row -->
 			</div>
-			<!-- /container -->
+			<!-- Products tab & slick -->
+			<div class="col-md-12">
+				<div class="row">
+					<div class="products-tabs">
+						<!-- tab -->
+						<div id="tab1" class="tab-pane active">
+							<div class="products-slick" data-nav="#slick-nav-1">
+								{% for producto in productos %}
+									{% if producto.estado == 'activo' %}
+									<!-- product -->
+									<div class="product">
+										<div class="product-img">
+											<img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/placeholder.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
+											<div class="product-label">
+												<span class="new">Nuevo</span>
+											</div>
+										</div>
+										<div class="product-body">
+											<p class="product-category">{{ producto.etiquetas }}</p>
+											<h3 class="product-name"><a href="#">{{ producto.nombre }}</a></h3>
+											<h4 class="product-price">${{ producto.precio }}</h4>
+											<div class="product-rating">
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+												<i class="fa fa-star"></i>
+											</div>
+										</div>
+										<div class="add-to-cart">
+											<button class="add-to-cart-btn" data-id="{{ producto.id }}">
+												<i class="fa fa-shopping-cart"></i>Agregar al carro
+											</button>
+										</div>
+									</div>
+									<!-- /product -->
+									{% endif %}
+								{% endfor %}
+							</div>
+							<div id="slick-nav-1" class="products-slick-nav"></div>
+						</div>
+						<!-- /tab -->
+					</div>
+				</div>
+			</div>
+			<!-- /Products tab & slick -->
 		</div>
-		<!-- /SECTION -->
-		 
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<!-- Puedes eliminar o comentar las secciones de productos hardcodeados/solo frontend aquí si no se usan -->
+
 {% endblock %}
 
 {% block custom_script %}

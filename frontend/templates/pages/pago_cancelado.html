@@ -4,9 +4,18 @@
 {% block title %}Pago Cancelado{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2>Pago cancelado o no exitoso</h2>
-    <p>Tu pago no fue procesado. Si lo deseas, puedes intentarlo nuevamente.</p>
-    <a href="{% url 'carrito' %}" class="btn btn-primary">Volver al carrito</a>
+<div class="container text-center my-5">
+    <div class="alert alert-danger p-5 shadow-lg rounded">
+        <h1 class="display-4 text-danger">
+            <i class="fa fa-times-circle" style="font-size:1.2em;"></i>
+            Pago cancelado o no exitoso
+        </h1>
+        <p class="lead mt-4">Tu pago no fue procesado.</p>
+        <hr class="my-4">
+        <p>Si lo deseas, puedes intentarlo nuevamente.</p>
+        <a href="{% url 'carrito' %}" class="btn btn-primary btn-lg mt-3">
+            Volver al carrito
+        </a>
+    </div>
 </div>
 {% endblock %}

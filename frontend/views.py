@@ -318,5 +318,6 @@ def mayorista(request):
     }
     return render(request, 'pages/mayorista.html', context)
 
-
+def store(request):
+    return render(request, 'pages/store.html')
 

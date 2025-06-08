@@ -12,6 +12,7 @@
 			<!-- NAV -->
 			<ul class="main-nav nav navbar-nav">
 				<li class="active"><a href="#">Inicio</a></li>
+				<li class="active"><a href="{% url 'store' %}">Categorias</a></li>
 			</ul>
 			<!-- /NAV -->
 		</div>
@@ -119,7 +120,7 @@
 									<!-- product -->
 									<div class="product">
 										<div class="product-img">
-											<img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/placeholder.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
+											<img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sensoroxigeno.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
 											<div class="product-label">
 												<span class="new">Nuevo</span>
 											</div>

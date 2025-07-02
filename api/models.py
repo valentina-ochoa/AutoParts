@@ -1,13 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from django.contrib import admin
+from django.contrib.admin.models import LogEntry
 
 class Usuario(AbstractUser):
     rut = models.CharField(max_length=12, unique=True, null=True, blank=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name="Fecha de Nacimiento")
     direccion = models.CharField(max_length=255, null=True, blank=True, verbose_name="Dirección")
-    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")
 
     def __str__(self):
@@ -47,13 +48,12 @@ class Producto(models.Model):
         verbose_name_plural = "Productos"
 
     def __str__(self):
-        return f"{self.nombre} ({self.codigo_producto})"
+        return f"{self.nombre} (ID: {self.id})"
 
     
 class Carrito(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     creado = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=20, default='activo')
 
     class Meta:
         verbose_name = "Carrito"
@@ -80,21 +80,6 @@ class CarritoItem(models.Model):
 
     def subtotal(self):
         return self.cantidad * self.producto.precio
-
-class LogAuditoria(models.Model):
-    fecha_hora = models.DateTimeField(auto_now_add=True)
-    usuario = models.CharField(max_length=150, null=True, blank=True)
-    accion = models.CharField(max_length=32)
-    modelo = models.CharField(max_length=64, null=True, blank=True)
-    detalles = models.TextField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "Log de Auditoría"
-        verbose_name_plural = "Logs de Auditoría"
-        ordering = ['-fecha_hora']
-
-    def __str__(self):
-        return f"{self.fecha_hora} - {self.usuario} - {self.accion}"
 
 class Pedido(models.Model):
     cliente = models.CharField(max_length=150)
@@ -134,3 +119,31 @@ class ClienteDistribuidor(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.tipo})"
+
+class LogEntryProxy(LogEntry):
+    class Meta:
+        proxy = True
+        verbose_name = "Log"
+        verbose_name_plural = "Logs"
+
+class CarritoItemInline(admin.TabularInline):
+    model = CarritoItem
+    extra = 0
+
+@admin.register(Carrito)
+class CarritoAdmin(admin.ModelAdmin):
+    inlines = [CarritoItemInline]
+    list_display = ("usuario", "creado", "total")
+    search_fields = ("usuario__username",)
+
+@admin.register(Usuario)
+class UsuarioAdmin(admin.ModelAdmin):
+    readonly_fields = ("date_joined", "fecha_actualizacion", "last_login")
+
+@admin.register(Producto)
+class ProductoAdmin(admin.ModelAdmin):
+    readonly_fields = ("fecha_creacion", "fecha_actualizacion", "slug")
+
+@admin.register(ClienteDistribuidor)
+class ClienteDistribuidorAdmin(admin.ModelAdmin):
+    readonly_fields = ("fecha_creacion", "fecha_actualizacion")

@@ -14,7 +14,7 @@ from transbank.webpay.webpay_plus.transaction import Transaction
 from transbank.common.options import WebpayOptions
 from transbank.common.integration_type import IntegrationType
 
-from .models import Producto, Carrito, CarritoItem, LogAuditoria, Pedido, PedidoItem, ClienteDistribuidor
+from .models import Producto, Carrito, CarritoItem, Pedido, PedidoItem, ClienteDistribuidor
 from django.db.models import Count, Q
 
 

@@ -5,52 +5,38 @@ import phonenumbers
 from itertools import cycle
 
 class RegistroUsuarioForm(UserCreationForm):
-    rut = forms.CharField(max_length=12, required=False)
-    telefono = forms.CharField(max_length=15, required=False, help_text="Incluye el código de país, por ejemplo: +56912345678")
-
+    rut = forms.CharField(max_length=12, required=True)
+    first_name = forms.CharField(max_length=150, required=True, label="Nombre")
+    last_name = forms.CharField(max_length=150, required=True, label="Apellido")
+    telefono = forms.CharField(max_length=15, required=True, help_text="Incluye el código de país, por ejemplo: +56912345678")
+    direccion = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Dirección completa'}),
+        label="Dirección",
+        help_text="Ejemplo: Av. Apoquindo 3000, Las Condes, Santiago, Región Metropolitana"
+    )
+    fecha_nacimiento = forms.DateField(
+        required=True,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label="Fecha de Nacimiento"
+    )
     class Meta:
         model = Usuario
-        fields = ("username", "email", "rut", "telefono", "password1", "password2")
-
+        fields = (
+            "username", "email", "rut", "first_name", "last_name",  "telefono",
+            "direccion", "fecha_nacimiento", "password1", "password2"
+        )
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+        self.fields['email'].label = 'Correo Electrónico'
+        self.fields['rut'].widget.attrs['placeholder'] = 'RUT (sin puntos ni guión)'
 
-    def clean_rut(self):
-        rut = self.cleaned_data.get('rut', '').upper().replace("-", "").replace(".", "")
-        if not rut:
-            return rut
-        rut_aux = rut[:-1]
-        dv = rut[-1:]
-
-        if not rut_aux.isdigit() or not (1_000_000 <= int(rut_aux) <= 25_000_000):
-            raise forms.ValidationError("RUT fuera de rango o con formato incorrecto.")
-
-        revertido = map(int, reversed(rut_aux))
-        factors = cycle(range(2, 8))
-        suma = sum(d * f for d, f in zip(revertido, factors))
-        residuo = suma % 11
-
-        if dv == 'K':
-            if residuo != 1:
-                raise forms.ValidationError("RUT inválido.")
-        elif dv == '0':
-            if residuo != 0:
-                raise forms.ValidationError("RUT inválido.")
-        else:
-            if residuo != 11 - int(dv):
-                raise forms.ValidationError("RUT inválido.")
-        return rut
-
-    def clean_telefono(self):
-        telefono = self.cleaned_data.get('telefono', '')
-        if not telefono:
-            return telefono
-        try:
-            phone = phonenumbers.parse(telefono, None)
-            if not phonenumbers.is_valid_number(phone):
-                raise forms.ValidationError("Número de teléfono inválido.")
-        except Exception:
-            raise forms.ValidationError("Número de teléfono inválido.")
-        return phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164)
+    def clean_username(self):
+        username = self.cleaned_data["username"].lower()
+        if Usuario.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("Este nombre de usuario ya está en uso.")
+        return username

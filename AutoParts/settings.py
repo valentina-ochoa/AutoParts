@@ -35,6 +35,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +47,44 @@ INSTALLED_APPS = [
     'frontend',
     'api',
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "AutoParts Admin",
+    "site_header": "Panel de Administración de AutoParts",
+    "site_brand": "AutoParts",
+    "welcome_sign": "Bienvenido al Panel de AutoParts",
+    "copyright": "AutoParts",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": ["auth", "contenttypes", "sessions", "messages", "staticfiles"],
+    "hide_models": ["api.CarritoItem", "api.PedidoItem"],
+
+    "order_with_respect_to": [
+        "api.Pedido",
+        "api.Carrito",
+        "api.ClienteDistribuidor",
+        "api.Producto",
+        "api.Usuario",
+        "api.LogEntryProxy",
+    ],
+
+    "topmenu_links": [
+        {"name": "Volver a la pagina", "url": "/", "permissions": ["auth.view_user"]},
+    ],
+
+
+    "icons": {
+        "api.Pedido": "fas fa-box",
+        "api.Carrito": "fas fa-shopping-basket",
+        "api.ClienteDistribuidor": "fas fa-user-friends",
+        "api.Producto": "fas fa-cube",
+        "api.Usuario": "fas fa-user",
+        "api.LogEntryProxy": "fas fa-file-alt",
+    },
+
+    "related_modal_active": True, 
+    "use_google_fonts_cdn": True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

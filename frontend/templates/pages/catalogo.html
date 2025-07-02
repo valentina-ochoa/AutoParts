@@ -1,0 +1,76 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="margin-top:40px; margin-bottom:40px;">
+    <h2 class="mb-4 text-center" style="font-weight:bold;">Catálogo de Productos</h2>
+    <div class="row">
+        <!-- Filtros a la izquierda -->
+        <div class="col-md-3 mb-4">
+            <div class="panel panel-primary" style="box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <div class="panel-heading text-center">
+                    <strong>Filtrar productos</strong>
+                </div>
+                <div class="panel-body">
+                    <form method="get" id="filtrosForm">
+                        <div class="form-group">
+                            <label for="categoria">Categoría</label>
+                            <select class="form-control" id="categoria" name="categoria">
+                                <option value="">Todas</option>
+                                {% for cat in categorias %}
+                                    <option value="{{ cat }}" {% if request.GET.categoria == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="precio_min">Precio mínimo</label>
+                            <input type="number" class="form-control" id="precio_min" name="precio_min" value="{{ request.GET.precio_min }}" min="0" placeholder="$0">
+                        </div>
+                        <div class="form-group">
+                            <label for="precio_max">Precio máximo</label>
+                            <input type="number" class="form-control" id="precio_max" name="precio_max" value="{{ request.GET.precio_max }}" min="0" placeholder="$9999">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
+                        <a href="{% url 'catalogo' %}" class="btn btn-default btn-block" style="margin-top:8px;">Borrar filtros</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Productos a la derecha -->
+        <div class="col-md-9">
+            <div class="row">
+                {% for producto in productos %}
+                    {% if producto.estado == 'activo' %}
+                    <!-- product -->
+                    <div class="col-lg-4 col-md-6 col-sm-12" style="margin-bottom:24px;">
+                        <div class="product panel panel-default" style="height:370px; min-height:370px; max-height:370px; box-shadow:0 2px 8px rgba(0,0,0,0.07); border-radius:6px; overflow:hidden; display:flex; flex-direction:column; cursor:pointer;" onclick="window.location.href='{% url 'product_detail' producto.id %}'">
+                            <div class="product-img text-center" style="height:160px; background:#f8f9fa; display:flex; align-items:center; justify-content:center; padding:12px;">
+                                <img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sensoroxigeno.jpg' %}{% endif %}" alt="{{ producto.nombre }}" style="max-height:120px; max-width:100%; object-fit:contain;">
+                            </div>
+                            <div class="product-body panel-body" style="display:flex; flex-direction:column; height:calc(370px - 160px);">
+                                <p class="product-category text-muted small" style="margin-bottom:4px;">{{ producto.etiquetas }}</p>
+                                <h3 class="product-name h6" style="margin-bottom:8px;"><a href="{% url 'product_detail' producto.id %}" style="text-decoration:none; color:#222;" onclick="event.stopPropagation();">{{ producto.nombre }}</a></h3>
+                                <h4 class="product-price text-primary" style="font-weight:bold; margin-bottom:8px;">${{ producto.precio }}</h4>
+                                <div class="product-rating" style="margin-bottom:8px;">
+                                    <i class="fa fa-star text-warning"></i>
+                                    <i class="fa fa-star text-warning"></i>
+                                    <i class="fa fa-star text-warning"></i>
+                                    <i class="fa fa-star text-warning"></i>
+                                    <i class="fa fa-star text-warning"></i>
+                                </div>
+                                <div style="margin-top:auto;">
+                                    <button class="add-to-cart-btn btn btn-default btn-block" data-id="{{ producto.id }}" style="border:1px solid #337ab7; color:#337ab7;" onclick="event.stopPropagation();">
+                                        <i class="fa fa-shopping-cart"></i> Agregar al carro
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /product -->
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

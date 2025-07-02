@@ -19,7 +19,7 @@ class Producto(models.Model):
     marca = models.CharField(max_length=100)
     nombre = models.CharField(max_length=200)
     stock = models.PositiveIntegerField(default=0, verbose_name="Stock Disponible")
-    imagen = models.ImageField(upload_to='imgProductos/', null=True, blank=True, verbose_name="Imagen del Producto")
+    imagen = models.ImageField(upload_to='imgProductos/', null=True, blank=True, verbose_name="Imagen del Producto", help_text="Solo se aceptan imágenes JPG y PNG.")
     descripcion = models.TextField(null=True, blank=True, verbose_name="Descripción del Producto")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")

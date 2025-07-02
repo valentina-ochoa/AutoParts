@@ -18,7 +18,7 @@
             </thead>
             <tbody>
                 {% for item in items %}
-                    <tr data-producto-id="{{ item.producto.id }}">
+                    <tr data-item-id="{{ item.id }}">
                         <td style="text-align:center; vertical-align:middle;">
                             {% if item.producto.imagen %}
                                 <img src="{{ item.producto.imagen.url }}" alt="Imagen producto" style="max-width:48px; max-height:48px; border-radius:6px; border:1px solid #ddd; background:#fafafa;">
@@ -29,10 +29,16 @@
                         <td>{{ item.producto.nombre }}</td>
                         <td class="precio-unitario">${{ item.precio_unitario|floatformat:0 }}</td>
                         <td>
-                            <input type="number" name="cantidad_{{ item.producto.id }}" value="{{ item.cantidad }}" min="1" class="form-control input-cantidad" style="width:80px; display:inline-block;">
+                            {% if item.producto.stock > 0 %}
+                                <input type="number" name="cantidad_{{ item.id }}" value="{{ item.cantidad }}" min="1" max="{{ item.producto.stock }}" class="form-control input-cantidad" style="width:80px; display:inline-block;">
+                            {% else %}
+                                <span class="label label-danger">Sin stock</span>
+                            {% endif %}
                         </td>
                         <td style="text-align:center;">
-                            <button class="btn btn-danger btn-sm btn-eliminar-item" data-id="{{ item.producto.id }}" title="Eliminar"><i class="fa fa-trash"></i></button>
+                                <button class="btn btn-danger btn-sm btn-eliminar-item" data-id="{{ item.id }}" title="Eliminar">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -43,7 +49,7 @@
         <div class="mt-4">
             <form method="POST" action="/api/pago/iniciar/" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Pagar</button>
+                <button type="submit" class="btn btn-primary" {% if not hay_stock %}disabled{% endif %}>Pagar</button>
             </form>
             <a href="{% url 'limpiar_carrito' %}" class="btn btn-warning"> Limpiar Carrito</a>
         </div>
@@ -84,30 +90,53 @@
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     var productoId = this.getAttribute('data-id');
-                    if (!confirm('¿Seguro que deseas eliminar este producto del carrito?')) return;
-                    fetch('{% url "eliminar_del_carrito" 0 %}'.replace('0', productoId), {
+                    console.log('[Carrito] Click eliminar para productoId:', productoId);
+                    if (!confirm('¿Seguro que deseas eliminar este producto del carrito?')) {
+                        console.log('[Carrito] Eliminación cancelada por el usuario');
+                        return;
+                    }
+                    var url = '{% url "eliminar_del_carrito" 0 %}'.replace('0', productoId);
+                    console.log('[Carrito] URL de fetch:', url);
+                    fetch(url, {
                         method: 'POST',
                         headers: {
                             'X-CSRFToken': '{{ csrf_token }}',
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('[Carrito] Respuesta recibida:', response);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('[Carrito] Data recibida:', data);
                         if(data.status === 'ok') {
                             // Eliminar la fila de la tabla
-                            var row = document.querySelector('tr[data-producto-id="' + productoId + '"]');
-                            if(row) row.remove();
+                            var row = document.querySelector('tr[data-item-id="' + productoId + '"]');
+                            if(row) {
+                                row.remove();
+                                console.log('[Carrito] Fila eliminada del DOM para productoId:', productoId);
+                            } else {
+                                console.error('[Carrito] No se encontró la fila en el DOM para productoId:', productoId);
+                            }
                             // Actualizar totales
                             document.getElementById('ivaCarrito').textContent = data.cart_total ? Math.round(data.cart_total - (data.cart_total/1.19)) : 0;
                             document.getElementById('totalCarrito').textContent = data.cart_total || 0;
                             // Si el carrito queda vacío, mostrar mensaje
-                            if(document.querySelectorAll('#tablaCarrito tbody tr').length === 0) {
+                            var filasRestantes = document.querySelectorAll('#tablaCarrito tbody tr').length;
+                            console.log('[Carrito] Filas restantes en el carrito:', filasRestantes);
+                            if(filasRestantes === 0) {
                                 document.getElementById('tablaCarrito').style.display = 'none';
                                 document.querySelector('.mt-4').insertAdjacentHTML('beforebegin', '<div class="alert alert-warning mt-4"><p>Tu carrito está vacío.</p></div>');
+                                console.log('[Carrito] Carrito vacío, mensaje mostrado');
                             }
                         } else {
+                            console.error('[Carrito] Error al eliminar el producto:', data);
                             alert('Error al eliminar el producto.');
                         }
+                    })
+                    .catch(error => {
+                        console.error('[Carrito] Error en fetch:', error);
+                        alert('Error de red al intentar eliminar el producto.');
                     });
                 });
             });

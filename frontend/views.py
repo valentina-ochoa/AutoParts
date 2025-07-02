@@ -113,6 +113,7 @@ def register(request):
     return render(request, 'pages/register.html', {'form': form})
 
 @csrf_exempt
+@login_required
 def carrito_view(request):
     items = []
     total = 0
@@ -130,6 +131,7 @@ def carrito_view(request):
             for item in carrito_items:
                 precio_item = item.producto.precio_mayorista if (es_distribuidor or es_superuser) else item.producto.precio
                 items.append({
+                    'id': item.id,
                     'producto': item.producto,
                     'cantidad': item.cantidad,
                     'subtotal': precio_item * item.cantidad,
@@ -139,29 +141,6 @@ def carrito_view(request):
         except Carrito.DoesNotExist:
             items = []
             total = 0
-    else:
-        carrito_cookie = request.COOKIES.get('carrito')
-        if carrito_cookie:
-            try:
-                carrito_data = json.loads(carrito_cookie)
-                for item in carrito_data.values():
-                    try:
-                        producto = Producto.objects.get(pk=item['producto_id'])
-                        cantidad = item['cantidad']
-                        precio_item = producto.precio_mayorista if item.get('mayorista') else producto.precio
-                        subtotal = precio_item * cantidad
-                        items.append({
-                            'producto': producto,
-                            'cantidad': cantidad,
-                            'subtotal': subtotal,
-                            'precio_unitario': precio_item,
-                        })
-                        total += subtotal
-                    except Producto.DoesNotExist:
-                        continue
-            except Exception:
-                items = []
-                total = 0
 
     if total:
         neto = round(total / 1.19)
@@ -169,12 +148,14 @@ def carrito_view(request):
     else:
         neto = 0
         iva = 0
+    hay_stock = all(item['producto'].stock > 0 for item in items)
 
     context = {
         'items': items,
         'total': total,
         'iva': iva,
         'neto': neto,
+        'hay_stock': hay_stock,
     }
     return render(request, 'pages/carrito.html', context)
 
@@ -242,3 +223,23 @@ def change_password(request):
             except ValidationError as e:
                 return JsonResponse({'success': False, 'message': " ".join(e.messages)})
     return JsonResponse({'success': False, 'message': "Método no permitido."})
+
+def catalogo(request):
+    productos = Producto.objects.filter(estado='activo')
+    categorias = Producto.objects.values_list('marca', flat=True).distinct()
+
+    categoria = request.GET.get('categoria')
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
+
+    if categoria:
+        productos = productos.filter(marca=categoria)
+    if precio_min:
+        productos = productos.filter(precio__gte=precio_min)
+    if precio_max:
+        productos = productos.filter(precio__lte=precio_max)
+
+    return render(request, 'pages/catalogo.html', {
+        'productos': productos,
+        'categorias': categorias,
+    })

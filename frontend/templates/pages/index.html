@@ -12,7 +12,7 @@
 			<!-- NAV -->
 			<ul class="main-nav nav navbar-nav">
 				<li class="active"><a href="#">Inicio</a></li>
-				<li class="active"><a href="{% url 'store' %}">Categorias</a></li>
+				<li class=""><a href="{% url 'catalogo' %}">Catalogo</a></li>
 			</ul>
 			<!-- /NAV -->
 		</div>
@@ -118,16 +118,13 @@
 								{% for producto in productos %}
 									{% if producto.estado == 'activo' %}
 									<!-- product -->
-									<div class="product">
+									<div class="product" style="cursor:pointer;" onclick="window.location.href='{% url 'product_detail' producto.id %}'; return false;">
 										<div class="product-img">
 											<img src="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sensoroxigeno.jpg' %}{% endif %}" alt="{{ producto.nombre }}">
-											<div class="product-label">
-												<span class="new">Nuevo</span>
-											</div>
 										</div>
 										<div class="product-body">
 											<p class="product-category">{{ producto.etiquetas }}</p>
-											<h3 class="product-name"><a href="#">{{ producto.nombre }}</a></h3>
+											<h3 class="product-name"><a href="{% url 'product_detail' producto.id %}" onclick="event.stopPropagation();">{{ producto.nombre }}</a></h3>
 											<h4 class="product-price">${{ producto.precio }}</h4>
 											<div class="product-rating">
 												<i class="fa fa-star"></i>
@@ -138,7 +135,7 @@
 											</div>
 										</div>
 										<div class="add-to-cart">
-											<button class="add-to-cart-btn" data-id="{{ producto.id }}">
+											<button class="add-to-cart-btn" data-id="{{ producto.id }}" onclick="event.stopPropagation();">
 												<i class="fa fa-shopping-cart"></i>Agregar al carro
 											</button>
 										</div>

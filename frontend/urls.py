@@ -15,4 +15,5 @@ urlpatterns = [
     path('mayorista/', views.mayorista, name='mayorista'),
     path('tienda/', views.store, name='store'),
     path('cambiar_contraseña/', change_password, name='cambiar_contraseña'),
+    path('catalogo/', views.catalogo, name='catalogo'),
 ]

@@ -34,16 +34,6 @@
               <i class="fa fa-shopping-bag fa-fw"></i> Pedidos
             </a>
           </li>
-          <li>
-            <a href="#pagos" data-toggle="tab">
-              <i class="fa fa-credit-card fa-fw"></i> Métodos de pago
-            </a>
-          </li>
-          <li>
-            <a href="#direcciones" data-toggle="tab">
-              <i class="fa fa-map-marker fa-fw"></i> Direcciones
-            </a>
-          </li>
         </ul>
       </div>
       <!-- Main content area -->
@@ -52,51 +42,148 @@
           <div class="tab-pane fade in active" id="info">
             <!-- Contenido de Información personal -->
             <h4>Información personal</h4>
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
             <p>Aquí puedes ver y editar tu información personal.</p>
-            <form>
-                <div class="form-group">
-                    <label for="nombre">Nombre completo</label>
-                    <input type="text" class="form-control" id="nombre" value="{{ user.first_name }} {{ user.last_name }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="rut">RUT</label>
-                    <input type="text" class="form-control" id="rut" value="{{ user.rut }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="telefono">Teléfono</label>
-                    <input type="text" class="form-control" id="telefono" value="{{ user.telefono }}" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="fecha_nacimiento">Fecha de nacimiento</label>
-                    <input type="text" class="form-control" id="fecha_nacimiento" value="{{ user.fecha_nacimiento|date:'d/m/Y' }}" readonly>
-                </div>
-                <button type="button" class="btn btn-primary" id="editBtn">Editar</button>
+            <form id="infoForm" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                  <label for="first_name">Nombre</label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="last_name">Apellido</label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="email">Correo electrónico</label>
+                  <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="telefono">Teléfono</label>
+                  <input type="text" class="form-control" id="telefono" name="telefono" value="{{ user.telefono }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="direccion">Dirección</label>
+                  <input type="text" class="form-control" id="direccion" name="direccion" value="{{ user.direccion }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="rut">RUT</label>
+                  <input type="text" class="form-control" id="rut" name="rut" value="{{ user.rut }}" readonly>
+              </div>
+              <div class="form-group">
+                  <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                  <input type="text" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{{ user.fecha_nacimiento|date:'d/m/Y' }}" readonly>
+              </div>
+              <button type="button" class="btn btn-primary" id="editBtn">Editar</button>
             </form>
           </div>
+
           <div class="tab-pane fade" id="seguridad">
-            <!-- Contenido de Seguridad -->
-            <h4>Seguridad</h4>
+            <!-- Seguridad -->
+            <h4>Seguridad</h4> 
+            <div class="tab-pane fade" id="seguridad">
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            </div>
             <p>Gestiona tu contraseña y opciones de seguridad.</p>
+            <form id="passwordForm" method="post" action="{% url 'cambiar_contraseña' %}">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="current_password">Contraseña actual</label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="current_password" name="current_password" required>
+                  <span class="input-group-btn">
+                    <button type="button"
+                            class="btn btn-warning"
+                            onclick="alert('Se ha enviado un correo con instrucciones para restablecer tu contraseña.');">
+                      Enviar correo de recuperación
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="new_password1">Nueva contraseña</label>
+                <input type="password" class="form-control" id="new_password1" name="new_password1" required>
+                <span class="help-block">
+                  Su contraseña no puede ser similar a otros componentes de su información personal.<br>
+                  Su contraseña debe contener por lo menos 8 caracteres.<br>
+                  Su contraseña no puede ser una contraseña usada muy comúnmente.<br>
+                  Su contraseña no puede estar formada exclusivamente por números.
+                </span>
+              </div>
+              <div class="form-group">
+                <label for="new_password2">Repetir nueva contraseña</label>
+                <input type="password" class="form-control" id="new_password2" name="new_password2" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Cambiar contraseña</button>
+            </form>
           </div>
+
           <div class="tab-pane fade" id="pedidos">
-            <!-- Contenido de Pedidos -->
-            <h4>Pedidos</h4>
-            <p>Consulta tu historial de compras.</p>
-          </div>
-          <div class="tab-pane fade" id="pagos">
-            <!-- Contenido de Métodos de pago -->
-            <h4>Métodos de pago</h4>
-            <p>Administra tus tarjetas y métodos de pago.</p>
-          </div>
-          <div class="tab-pane fade" id="direcciones">
-            <!-- Contenido de Direcciones -->
-            <h4>Direcciones</h4>
-            <p>Gestiona tus direcciones de envío y facturación.</p>
-          </div>
+          <!-- Pedidos -->
+          <h4>Pedidos</h4>
+          {% if pedidos %}
+              <table class="table table-bordered table-hover" style="background:#fff;">
+                <thead>
+                    <tr style="background:#f7f7f7;">
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Productos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pedido in pedidos %}
+                    <tr>
+                        <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="label {% if pedido.estado == 'pagado' %}label-success{% else %}label-info{% endif %}">
+                                {{ pedido.estado|capfirst }}
+                            </span>
+                        </td>
+                        <td>${{ pedido.total }}</td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-info productos-popover"
+                                    data-toggle="popover"
+                                    data-html="true"
+                                    title="Productos del pedido"
+                                    data-content="
+                                    <ul style='padding-left:0; margin:0; list-style:none;'>
+                                        {% for item in pedido.items.all %}
+                                            <li style='margin-bottom:12px; display:flex; align-items:center;'>
+                                                {% if item.producto.imagen %}
+                                                    <img src='{{ item.producto.imagen.url }}' alt='{{ item.producto.nombre }}' style='width:80px; height:80px; object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #eee;'>
+                                                {% endif %}
+                                                <span>
+                                                    <strong>{{ item.producto.nombre }}</strong><br>
+                                                    Cantidad: {{ item.cantidad }}<br>
+                                                    Precio: ${{ item.precio_unitario }}
+                                                </span>
+                                            </li>
+                                        {% empty %}
+                                            <li>No hay productos en este pedido.</li>
+                                        {% endfor %}
+                                    </ul>
+                                    ">
+                                <i class="fa fa-eye"></i> Ver productos
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+          {% else %}
+              <p>No tienes pedidos registrados.</p>
+          {% endif %}
+         </div>
         </div>
       </div>
     </div>
@@ -106,19 +193,95 @@
 
 {% block custom_script %}
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var editBtn = document.getElementById('editBtn');
+      var form = document.getElementById('infoForm');
+      var isEditing = false;
 
-document.addEventListener('DOMContentLoaded', function() {
-    var editBtn = document.getElementById('editBtn');
-    var form = document.getElementById('infoForm');
-    editBtn.addEventListener('click', function() {
-      var inputs = form.querySelectorAll('input');
-      for (var i = 0; i < inputs.length; i++) {
-        inputs[i].removeAttribute('readonly');
+      console.log("Script cargado. isEditing:", isEditing);
+
+      editBtn.addEventListener('click', function(e) {
+          console.log("Botón clickeado. isEditing:", isEditing);
+          if (!isEditing) {
+              // Solo permitir editar nombre, apellido, teléfono y email
+              var editableIds = ["first_name", "last_name", "telefono", "email", "direccion"];
+              editableIds.forEach(function(id) {
+                  var input = document.getElementById(id);
+                  if (input) {
+                      input.removeAttribute('readonly');
+                      console.log("Campo editable:", id);
+                  }
+              });
+              editBtn.textContent = 'Guardar';
+              editBtn.setAttribute('type', 'submit');
+              isEditing = true;
+              console.log("Modo edición activado. isEditing:", isEditing);
+              // Prevenir el submit inmediato
+              e.preventDefault();
+          } else {
+              console.log("Formulario enviado.");
+          }
+      });
+      // Borra los mensajes al cambiar de tab
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          console.log("Cambiando de tab a:", $(e.target).attr('href'));
+          $('.alert').remove();
+          window.location.hash = $(e.target).attr('href'); // <-- Esto actualiza el hash en la URL
+      });
+
+      // AJAX para el formulario de cambio de contraseña
+      $('#passwordForm').on('submit', function(e) {
+          e.preventDefault();
+          console.log("Enviando formulario de cambio de contraseña por AJAX");
+
+          var form = $(this);
+          var url = form.attr('action');
+          var data = form.serialize();
+
+          // Limpia mensajes anteriores
+          $('#seguridad .alert').remove();
+
+          $.post(url, data)
+            .done(function(response) {
+                // Si tu vista retorna JSON con éxito
+                if (response.success) {
+                    $('#seguridad').prepend('<div class="alert alert-success">' + response.message + '</div>');
+                    form[0].reset();
+                } else {
+                    $('#seguridad').prepend('<div class="alert alert-danger">' + response.message + '</div>');
+                }
+            })
+            .fail(function(xhr) {
+                // Si tu vista retorna errores como JSON
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    $('#seguridad').prepend('<div class="alert alert-danger">' + xhr.responseJSON.message + '</div>');
+                } else {
+                    $('#seguridad').prepend('<div class="alert alert-danger">Ocurrió un error inesperado.</div>');
+                }
+            });
+      });
+
+      // Popover para productos de pedidos
+      $('.productos-popover').popover({
+        trigger: 'focus',
+        placement: 'left',
+        container: 'body'
+      });
+
+      // Mantener la pestaña activa según el hash
+      console.log("Hash actual:", window.location.hash);
+      if (window.location.hash === "#pedidos" || window.location.hash === "#seguridad") {
+          var tab = window.location.hash;
+          var tabLink = document.querySelector('a[href="' + tab + '"]');
+          if (tabLink) {
+              console.log("Activando tab:", tab);
+              tabLink.click();
+          } else {
+              console.log("No se encontró el tabLink para:", tab);
+          }
+          $('.tab-pane').removeClass('in active');
+          $(tab).addClass('in active');
       }
-      editBtn.textContent = 'Guardar';
-      editBtn.type = 'submit';
-    });
-});
-
+  });
 </script>
 {% endblock %}

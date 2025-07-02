@@ -188,7 +188,7 @@
 									</a>
 								</li>
 								<li>
-									<a href="#" class="text-white w-100">
+									<a href="{% url 'account' %}#pedidos" class="text-white w-100">
 										<i class="fa fa-list"></i> Pedidos
 									</a>
 								</li>
@@ -235,7 +235,7 @@
 						<h4 class="modal-title mb-0" id="loginModalLabel">Iniciar Sesión</h4>
 					  </div>
 					  <div class="modal-body">
-						<div id="loginError" class="alert alert-danger d-none"></div>
+						<div id="loginError" class="alert alert-danger hidden"></div>
 						<div class="form-group">
 						  <label for="id_username">Usuario</label>
 						  <input type="text" class="form-control" name="username" id="id_username" required>
@@ -506,7 +506,7 @@
 			const password = document.getElementById('id_password').value;
 			const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 			const errorDiv = document.getElementById('loginError');
-			errorDiv.classList.add('d-none');
+			errorDiv.classList.add('hidden');
 			errorDiv.classList.remove('shake');
 
 			const response = await fetch("{% url 'login' %}", {
@@ -522,9 +522,9 @@
 				window.location.reload();
 			} else {
 				errorDiv.textContent = data.login_error || "Usuario o contraseña incorrectos";
-				errorDiv.classList.remove('d-none');
+				errorDiv.classList.remove('hidden');
 				errorDiv.classList.add('shake');
-				setTimeout(() => errorDiv.classList.remove('shake'), 400);
+				setTimeout(() => errorDiv.classList.remove('shake'), 400) ;
 			}
 		});
 

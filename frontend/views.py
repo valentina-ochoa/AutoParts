@@ -1,4 +1,5 @@
 import json
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from api.forms import RegistroUsuarioForm
@@ -11,6 +12,9 @@ from transbank.common.integration_type import IntegrationType
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
+from api.models import Pedido, PedidoItem
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password, ValidationError
 
 def index(request):
     productos = Producto.objects.all()
@@ -83,8 +87,20 @@ def producto(request, id=None):
 def checkout(request):
     return render(request, 'pages/checkout.html')
 
+@login_required
 def account(request):
-    return render(request, 'pages/account.html')
+    user = request.user
+    pedidos = Pedido.objects.filter(usuario=user).order_by('-fecha')
+    if request.method == "POST":
+        user.first_name = request.POST.get("first_name", user.first_name)
+        user.last_name = request.POST.get("last_name", user.last_name)
+        user.email = request.POST.get("email", user.email)
+        user.telefono = request.POST.get("telefono", user.telefono)
+        user.direccion = request.POST.get("direccion", user.direccion)
+        user.save()
+        messages.success(request, "Tus datos han sido actualizados correctamente.")
+        return redirect('account')
+    return render(request, 'pages/account.html', {'user': user, 'pedidos': pedidos})
 
 def register(request):
     if request.method == 'POST':
@@ -205,3 +221,24 @@ def mayorista(request):
 def store(request):
     return render(request, 'pages/store.html')
 
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
+
+        if not request.user.check_password(current_password):
+            return JsonResponse({'success': False, 'message': "La contraseña actual es incorrecta."})
+        elif new_password1 != new_password2:
+            return JsonResponse({'success': False, 'message': "Las nuevas contraseñas no coinciden."})
+        else:
+            try:
+                validate_password(new_password1, user=request.user)
+                request.user.set_password(new_password1)
+                request.user.save()
+                update_session_auth_hash(request, request.user)
+                return JsonResponse({'success': True, 'message': "Tu contraseña ha sido cambiada exitosamente."})
+            except ValidationError as e:
+                return JsonResponse({'success': False, 'message': " ".join(e.messages)})
+    return JsonResponse({'success': False, 'message': "Método no permitido."})

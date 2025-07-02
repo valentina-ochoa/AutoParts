@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
+from django.conf import settings
 
 class Usuario(AbstractUser):
     rut = models.CharField(max_length=12, unique=True, null=True, blank=True)
@@ -82,7 +83,7 @@ class CarritoItem(models.Model):
         return self.cantidad * self.producto.precio
 
 class Pedido(models.Model):
-    cliente = models.CharField(max_length=150)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pedidos')
     tipo = models.CharField(max_length=10, choices=[('pedido', 'Pedido'), ('venta', 'Venta')], default='pedido')
     fecha = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('procesado', 'Procesado'), ('entregado', 'Entregado'), ('cancelado', 'Cancelado')], default='pendiente')
@@ -90,7 +91,7 @@ class Pedido(models.Model):
     observaciones = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Pedido #{self.id} - {self.cliente} - {self.fecha.strftime('%Y-%m-%d')}"
+        return f"Pedido #{self.id} - {self.usuario.get_full_name()} - {self.fecha.strftime('%Y-%m-%d')}"
 
 class PedidoItem(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)

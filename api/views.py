@@ -152,7 +152,7 @@ def confirmar_pago(request):
                 es_distribuidor = ClienteDistribuidor.objects.filter(email=request.user.email, tipo='distribuidor', activo=True).exists()
                 es_superuser = request.user.is_superuser
                 pedido = Pedido.objects.create(
-                    cliente=request.user,
+                    usuario=request.user,
                     tipo='pedido',
                     estado='pagado',
                     total=cart.total(),
@@ -634,7 +634,6 @@ def api_logs(request):
     accion = request.GET.get('accion', '').strip()
     fecha_desde = request.GET.get('fecha_desde', '').strip()
     fecha_hasta = request.GET.get('fecha_hasta', '').strip()
-    logs = LogAuditoria.objects.all()
     if usuario:
         logs = logs.filter(usuario__icontains=usuario)
     if accion:
@@ -653,24 +652,16 @@ def api_logs(request):
     } for l in logs]
     return JsonResponse({'logs': data})
 
-def registrar_log(usuario, accion, modelo, detalles=None):
-    LogAuditoria.objects.create(
-        usuario=str(usuario)[:150] if usuario else '',
-        accion=accion,
-        modelo=modelo,
-        detalles=detalles or ''
-    )
-
 @require_GET
 def api_pedidos(request):
     """Devuelve lista de pedidos/ventas con filtros."""
-    cliente = request.GET.get('cliente', '').strip()
+    usuario = request.GET.get('usuario', '').strip()
     estado = request.GET.get('estado', '').strip()
     fecha_desde = request.GET.get('fecha_desde', '').strip()
     fecha_hasta = request.GET.get('fecha_hasta', '').strip()
     pedidos = Pedido.objects.all()
-    if cliente:
-        pedidos = pedidos.filter(cliente__icontains=cliente)
+    if usuario:
+        pedidos = pedidos.filter(usuario__username__icontains=usuario)
     if estado:
         pedidos = pedidos.filter(estado=estado)
     if fecha_desde:
@@ -684,7 +675,7 @@ def api_pedidos(request):
         data.append({
             'id': p.id,
             'fecha': p.fecha.strftime('%Y-%m-%d %H:%M'),
-            'cliente': p.cliente,
+            'usuario': p.usuario.username if p.usuario else '',
             'tipo': p.get_tipo_display(),
             'estado': p.get_estado_display(),
             'total': float(p.total),
@@ -698,8 +689,14 @@ def api_pedido_nuevo(request):
     """Crea un nuevo pedido o venta."""
     try:
         data = json.loads(request.body.decode('utf-8'))
+        usuario_id = data.get('usuario_id')
+        usuario_obj = None
+        if usuario_id:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            usuario_obj = User.objects.get(id=usuario_id)
         pedido = Pedido.objects.create(
-            cliente=data['cliente'],
+            usuario=usuario_obj,
             tipo=data.get('tipo', 'pedido'),
             estado=data.get('estado', 'pendiente'),
             total=data.get('total', 0),
@@ -724,7 +721,7 @@ def api_clientes_distribuidores(request):
     nombre = request.GET.get('nombre', '').strip()
     activos = request.GET.get('activos', '1')
     qs = ClienteDistribuidor.objects.all()
-    if tipo in ['cliente', 'distribuidor']:
+    if tipo in ['usuario', 'distribuidor']:
         qs = qs.filter(tipo=tipo)
     if nombre:
         qs = qs.filter(nombre__icontains=nombre)
@@ -751,7 +748,7 @@ def api_clientes_distribuidores(request):
 def api_nuevo_cliente_distribuidor(request):
     """Crea un nuevo cliente o distribuidor. Si es distribuidor y se solicita, crea usuario Django asociado."""
     data = json.loads(request.body)
-    tipo = data.get('tipo', 'cliente')
+    tipo = data.get('tipo', 'usuario')
     nombre = data.get('nombre', '').strip()
     rut = data.get('rut', '').strip()
     email = data.get('email', '').strip()
@@ -805,7 +802,7 @@ def api_nuevo_cliente_distribuidor(request):
 def api_dashboard_resumen(request):
     total_productos = Producto.objects.count()
     total_pedidos = Pedido.objects.count()
-    total_clientes = ClienteDistribuidor.objects.filter(tipo='cliente').count()
+    total_clientes = ClienteDistribuidor.objects.filter(tipo='usuario').count()
     stock_bajo = Producto.objects.filter(stock__lt=10).count()
     return JsonResponse({
         'total_productos': total_productos,

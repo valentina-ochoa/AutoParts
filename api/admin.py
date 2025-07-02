@@ -14,15 +14,15 @@ class PedidoItemInline(admin.TabularInline):
 
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'cliente', 'tipo', 'fecha', 'estado', 'total')
+    list_display = ('id', 'usuario', 'tipo', 'fecha', 'estado', 'total')
     list_filter = ('tipo', 'estado', 'fecha')
-    search_fields = ('cliente',)
+    search_fields = ('usuario__username', 'usuario__first_name', 'usuario__last_name')
     inlines = [PedidoItemInline]
 
 @admin.register(PedidoItem)
 class PedidoItemAdmin(admin.ModelAdmin):
     list_display = ('pedido', 'producto', 'cantidad', 'precio_unitario')
-    search_fields = ('pedido__cliente', 'producto__nombre')
+    search_fields = ('pedido__usuario__username', 'producto__nombre')
 
 @admin.register(LogEntryProxy)
 class LogEntryAdmin(admin.ModelAdmin):
